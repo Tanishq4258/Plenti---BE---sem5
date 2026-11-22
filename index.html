@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Plenti connects cafes, bakeries, and restaurants with customers to rescue fresh surplus food at up to 70% off — saving money and eliminating food waste." />
+  <meta name="keywords" content="Plenti, surplus food, food waste, discounted food, bakery, cafe, restaurant, rescue meals, Chandigarh" />
+  <meta property="og:title" content="Plenti — Save More. Waste Less." />
+  <meta property="og:description" content="Discover fresh surplus food from local cafes, bakeries and restaurants at unbeatable prices." />
+  <meta property="og:type" content="website" />
+  <title>Plenti — Save More. Waste Less. | Surplus Food Marketplace</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;850&display=swap" rel="stylesheet" />
+
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+  <!-- ==================== NAVBAR ==================== -->
+  <header id="navbar" class="navbar" role="banner">
+    <div class="container navbar-inner">
+
+      <!-- Logo -->
+      <a href="index.html" class="logo" aria-label="Plenti Home">
+        <div class="logo-icon" aria-hidden="true">
+          <!-- Eco leaf + shopping bowl icon -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2C6.5 2 2 6.5 2 12c0 3.5 1.8 6.6 4.6 8.4"/>
+            <path d="M12 22a10 10 0 0 0 10-10c0-5.5-4.5-10-10-10"/>
+            <path d="M12 6v6l4 2"/>
+            <path d="M16 22a4 4 0 0 0-8 0"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="brand-name">Plenti</span>
+          <span class="brand-tagline">Save More · Waste Less</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="nav-links" role="navigation" aria-label="Main navigation">
+        <a href="#discover" class="nav-link">Discover Food</a>
+        <a href="#how-it-works" class="nav-link">How It Works</a>
+        <a href="#for-businesses" class="nav-link">For Businesses</a>
+        <a href="#impact" class="nav-link">Our Impact</a>
+      </nav>
+
+      <!-- Nav CTA Actions -->
+      <div class="nav-actions">
+        <a href="#login" class="nav-login" id="navLoginBtn" onclick="showToast('Authentication backend will be configured next!'); return false;">Log In</a>
+        <a href="#signup" class="btn btn-primary btn-sm" id="navSignupBtn" onclick="showToast('Registration backend will be configured next!'); return false;">Sign Up</a>
+      </div>
+
+      <!-- Hamburger Button (Mobile) -->
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Nav Drawer -->
+  <div class="mobile-nav" id="mobileNav" role="navigation" aria-label="Mobile navigation">
+    <div class="mobile-nav-links">
+      <a href="#discover" class="mobile-nav-link">Discover Food</a>
+      <a href="#how-it-works" class="mobile-nav-link">How It Works</a>
+      <a href="#for-businesses" class="mobile-nav-link">For Businesses</a>
+      <a href="#impact" class="mobile-nav-link">Our Impact</a>
+    </div>
+    <div class="mobile-nav-actions">
+      <a href="#login" class="btn btn-outline" onclick="showToast('Auth will be connected soon!'); return false;">Log In</a>
+      <a href="#signup" class="btn btn-primary" onclick="showToast('Auth will be connected soon!'); return false;">Sign Up</a>
+    </div>
+  </div>
+
+  <main id="main">
+
+    <!-- ==================== HERO SECTION ==================== -->
+    <section class="hero" aria-labelledby="heroHeadline">
+      <div class="hero-bg-blob hero-bg-blob-1" aria-hidden="true"></div>
+      <div class="hero-bg-blob hero-bg-blob-2" aria-hidden="true"></div>
+
+      <div class="container hero-inner">
+        <!-- Text Content -->
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span class="dot" aria-hidden="true"></span>
+            🌱 Food waste, solved.
+          </div>
+
+          <h1 class="hero-headline" id="heroHeadline">
+            Good Food Deserves<br/>
+            <span class="accent">Another Chance.</span>
+          </h1>
+
+          <p class="hero-subtext">
+            Discover fresh surplus food from your favourite local cafes, bakeries and restaurants at a fraction of the regular price — saving money while keeping great food out of landfills.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#discover" class="btn btn-primary btn-lg" id="heroFindFoodBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+              Find Food Near Me
+            </a>
+            <a href="#for-businesses" class="btn btn-outline btn-lg" id="heroBusinessBtn">
+              List Your Surplus Food
+            </a>
+          </div>
+
+          <div class="hero-social-proof">
+            <div class="hero-avatars" aria-hidden="true">
+              <div class="hero-avatar">TC</div>
+              <div class="hero-avatar">AR</div>
+              <div class="hero-avatar">MK</div>
+              <div class="hero-avatar">PS</div>
+            </div>
+            <p class="hero-social-text">
+              <strong>2,400+ meals</strong> rescued this month in your area
+            </p>
+          </div>
+        </div>
+
+        <!-- Visual with Floating Cards -->
+        <div class="hero-visual" aria-hidden="true">
+          <!-- Floating Card 1 -->
+          <div class="float-card float-card-1">
+            <div class="float-card-icon green">🥐</div>
+            <div class="float-card-info">
+              <div class="label">Fresh Bakery Box</div>
+              <div class="value">₹149</div>
+              <div class="sub">65% saved · 3 left</div>
+            </div>
+          </div>
+
+          <!-- Main Image -->
+          <div class="hero-image-wrapper">
+            <img
+              src="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80"
+              alt="Assorted fresh artisanal bakery goods and pastries"
+              loading="eager"
+              fetchpriority="high"
+            />
+          </div>
+
+          <!-- Floating Card 2 -->
+          <div class="float-card float-card-2">
+            <div class="float-card-icon pink">🍰</div>
+            <div class="float-card-info">
+              <div class="label">Dessert Surprise</div>
+              <div class="value">₹139</div>
+              <div class="sub">63% saved · Pickup 8PM</div>
+            </div>
+          </div>
+
+          <!-- Floating Card 3 -->
+          <div class="float-card float-card-3">
+            <div class="float-card-icon amber">♻️</div>
+            <div class="float-card-info">
+              <div class="label">Meals Rescued</div>
+              <div class="value">12,450+</div>
+              <div class="sub">and counting!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== DISCOVER / LIVE INVENTORY ==================== -->
+    <section class="section discover" id="discover" aria-labelledby="discoverHeading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Near You</span>
+          <h2 class="section-title" id="discoverHeading">Fresh finds near you.</h2>
+          <p class="section-subtitle">Save money. Save food. Discover something delicious.</p>
+        </div>
+
+        <!-- Location & Keyword Search Bar -->
+        <div class="location-bar" role="search" aria-label="Surplus food search">
+          <div class="location-pin" title="Click to change city" aria-label="Current city: Chandigarh">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:18px; height:18px;">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            Chandigarh
+          </div>
+          <input
+            type="text"
+            class="location-input"
+            id="locationSearch"
+            placeholder="Search bakeries, cafes, bowls, rolls..."
+            aria-label="Search cafes, bakeries, restaurants"
+          />
+          <button class="location-search-btn" aria-label="Search" id="locationSearchBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Live Inventory Indicator & Sort Control -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; flex-wrap:wrap; gap:12px;">
+          <span class="live-pulse">Live Surplus Inventory</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label for="priceSortSelect" style="font-size:0.85rem; font-weight:700; color:var(--color-text-muted);">Sort By:</label>
+            <select id="priceSortSelect" style="background:#FFFFFF; border:1px solid var(--color-border); padding:6px 14px; font-size:0.85rem; border-radius:var(--radius-full); font-weight:600; cursor:pointer;">
+              <option value="newest">Newest First</option>
+              <option value="discount">Biggest Discount %</option>
+              <option value="price_low">Price: Low to High</option>
+              <option value="price_high">Price: High to Low</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="category-filter-bar" id="categoryFilterBar">
+          <button class="cat-pill active" data-category="all">✨ All Surplus</button>
+          <button class="cat-pill" data-category="bakery">🥐 Bakery</button>
+          <button class="cat-pill" data-category="meals">🍲 Meals</button>
+          <button class="cat-pill" data-category="desserts">🍰 Desserts</button>
+          <button class="cat-pill" data-category="beverages">🥤 Beverages</button>
+          <button class="cat-pill" data-category="snacks">🥪 Snacks</button>
+        </div>
+
+        <!-- Food Cards Grid (Populated dynamically) -->
+        <div class="food-grid" id="marketplaceFoodGrid">
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="empty-state-icon">⏳</div>
+            <div class="empty-state-title">Loading live surplus food...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== VALUE PROPOSITION ==================== -->
+    <section class="section value-prop" id="features" aria-labelledby="featuresHeading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Why Plenti Works</span>
+          <h2 class="section-title" id="featuresHeading">One small choice.<br/>Three big wins.</h2>
+          <p class="section-subtitle">Bridging the gap between unsold quality food and conscious consumers.</p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon pink" aria-hidden="true">💰</div>
+            <h3 class="feature-card-title">Save Money</h3>
+            <p class="feature-card-text">Get high quality food from reputable cafes and restaurants at up to 70% off regular retail prices.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon green" aria-hidden="true">🌿</div>
+            <h3 class="feature-card-title">Reduce Waste</h3>
+            <p class="feature-card-text">Help perfectly fresh, edible food find eager tables instead of garbage cans. Every rescued meal cuts carbon emissions.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon blue" aria-hidden="true">🏪</div>
+            <h3 class="feature-card-title">Support Local</h3>
+            <p class="feature-card-text">Directly support local bakeries, independent cafes, and culinary artisans in your neighborhood.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon amber" aria-hidden="true">✨</div>
+            <h3 class="feature-card-title">Discover More</h3>
+            <p class="feature-card-text">Sample surprise bags from top eateries you have always wanted to try. Your new favorite eatery is one box away.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== HOW IT WORKS ==================== -->
+    <section class="section how-it-works" id="how-it-works" aria-labelledby="howHeading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Simple Process</span>
+          <h2 class="section-title" id="howHeading">How Plenti Works</h2>
+          <p class="section-subtitle">From discovery to delicious in three effortless steps.</p>
+        </div>
+
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number-wrap">1</div>
+            <span class="step-icon" aria-hidden="true">🔍</span>
+            <h3 class="step-title">Discover</h3>
+            <p class="step-text">Open Plenti to explore real-time surplus boxes listed by top local cafes and bakeries right near you.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number-wrap">2</div>
+            <span class="step-icon" aria-hidden="true">🛒</span>
+            <h3 class="step-title">Reserve</h3>
+            <p class="step-text">Choose your surplus box and reserve it in seconds before items run out. Pay online or choose cash on pickup.</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number-wrap">3</div>
+            <span class="step-icon" aria-hidden="true">🎉</span>
+            <h3 class="step-title">Pick Up &amp; Enjoy</h3>
+            <p class="step-text">Head to the store during the designated evening pickup window, show your digital code, and grab your fresh food.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FOR BUSINESSES ==================== -->
+    <section class="section for-businesses" id="for-businesses" aria-labelledby="businessHeading">
+      <div class="container">
+        <div class="businesses-inner">
+
+          <div class="businesses-content">
+            <span class="section-label">For Businesses</span>
+            <h2 class="section-title" id="businessHeading">Have unsold food at the end of the day?</h2>
+            <p class="section-subtitle">
+              Turn your end-of-day surplus into sustainable revenue. Partner with Plenti to reach hundreds of eager local customers while demonstrating true eco-responsibility.
+            </p>
+
+            <ul class="benefit-list">
+              <li class="benefit-item">
+                <span class="benefit-check" aria-hidden="true">✓</span>
+                Recover revenue from inventory that would otherwise be discarded
+              </li>
+              <li class="benefit-item">
+                <span class="benefit-check" aria-hidden="true">✓</span>
+                Attract new paying customers into your store during off-peak hours
+              </li>
+              <li class="benefit-item">
+                <span class="benefit-check" aria-hidden="true">✓</span>
+                Directly reduce food disposal costs and environmental footprints
+              </li>
+              <li class="benefit-item">
+                <span class="benefit-check" aria-hidden="true">✓</span>
+                Publish surplus listings in under 60 seconds with simple controls
+              </li>
+              <li class="benefit-item">
+                <span class="benefit-check" aria-hidden="true">✓</span>
+                Custom pickup windows that effortlessly integrate with closing duties
+              </li>
+            </ul>
+
+            <a href="#partner" class="btn btn-white btn-lg" id="partnerBtn" onclick="showToast('Business portal onboarding will be hooked to backend!'); return false;">
+              Partner With Us →
+            </a>
+          </div>
+
+          <!-- Business Dashboard Mockup Preview -->
+          <div class="dashboard-mockup" role="img" aria-label="Plenti merchant listing interface preview">
+            <div class="mockup-header">
+              <div class="mockup-dots">
+                <div class="mockup-dot mockup-dot-red"></div>
+                <div class="mockup-dot mockup-dot-yellow"></div>
+                <div class="mockup-dot mockup-dot-green"></div>
+              </div>
+              <span class="mockup-title">Plenti Merchant Portal — New Surplus Listing</span>
+            </div>
+            <div class="mockup-body">
+              <p class="mockup-form-title">🥐 Publish Today's Surplus Box</p>
+
+              <div class="mockup-field">
+                <label>Box Title</label>
+                <div class="mockup-input">Evening Bakery Surprise Box</div>
+              </div>
+
+              <div class="mockup-field">
+                <label>Description</label>
+                <div class="mockup-input">Freshly baked butter croissants, chocolate donuts &amp; rolls</div>
+              </div>
+
+              <div class="mockup-row">
+                <div class="mockup-field">
+                  <label>Surplus Price</label>
+                  <div class="mockup-input">₹149 (was ₹399)</div>
+                </div>
+                <div class="mockup-field">
+                  <label>Quantity Available</label>
+                  <div class="mockup-input">5 boxes</div>
+                </div>
+              </div>
+
+              <div class="mockup-field">
+                <label>Customer Pickup Window</label>
+                <div class="mockup-input">7:30 PM – 9:00 PM (Closing)</div>
+              </div>
+
+              <button class="mockup-submit" type="button" onclick="showToast('Surplus Box Published Live to Customers! ✨');">
+                Publish Listing ✓
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== IMPACT STATS ==================== -->
+    <section class="section impact" id="impact" aria-labelledby="impactHeading">
+      <div class="container">
+        <div class="impact-inner">
+          <span class="section-label">Our Impact</span>
+          <h2 class="section-title" id="impactHeading">Every meal rescued makes a difference.</h2>
+          <p class="section-subtitle">Together, we are building a sustainable community where good food never goes to waste.</p>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon" aria-hidden="true">🍽️</div>
+              <div
+                class="stat-value"
+                data-count="12450"
+                data-suffix="+"
+                aria-label="12,450+ meals rescued"
+              >0</div>
+              <div class="stat-label">Meals Rescued</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon" aria-hidden="true">🌍</div>
+              <div
+                class="stat-value"
+                data-count="8200"
+                data-suffix=" kg"
+                aria-label="8,200 kg food saved"
+              >0</div>
+              <div class="stat-label">Food Saved from Landfills</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon" aria-hidden="true">💚</div>
+              <div
+                class="stat-value"
+                data-count="18.4"
+                data-prefix="₹"
+                data-suffix="L"
+                aria-label="₹18.4 lakh economic value saved"
+              >0</div>
+              <div class="stat-label">Value Recovered for Community</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TESTIMONIALS ==================== -->
+    <section class="section testimonials" id="testimonials" aria-labelledby="testimonialHeading">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Community Stories</span>
+          <h2 class="section-title" id="testimonialHeading">Loved by foodies and businesses alike.</h2>
+          <p class="section-subtitle">Real experiences from students, food lovers, and passionate cafe owners.</p>
+        </div>
+
+        <div class="testimonials-grid">
+          <article class="testimonial-card">
+            <div class="testimonial-stars" aria-label="5 star rating">★★★★★</div>
+            <blockquote class="testimonial-text">
+              "I reserved a bakery box for ₹149 and received ₹450+ worth of warm croissants, brownies, and multigrain bread. Freshness was outstanding!"
+            </blockquote>
+            <div class="testimonial-author">
+              <div class="author-avatar" aria-hidden="true">AR</div>
+              <div>
+                <div class="author-name">Aarav R.</div>
+                <div class="author-role">Customer · Sector 17, Chandigarh</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="testimonial-card">
+            <div class="testimonial-stars" aria-label="5 star rating">★★★★★</div>
+            <blockquote class="testimonial-text">
+              "As a student at Panjab University, Plenti helps me eat gourmet meals on a budget while actually doing something meaningful for sustainability."
+            </blockquote>
+            <div class="testimonial-author">
+              <div class="author-avatar" aria-hidden="true">MK</div>
+              <div>
+                <div class="author-name">Mehak K.</div>
+                <div class="author-role">Student · Panjab University</div>
+              </div>
+            </div>
+          </article>
+
+          <article class="testimonial-card">
+            <div class="testimonial-stars" aria-label="5 star rating">★★★★★</div>
+            <blockquote class="testimonial-text">
+              "Plenti transformed our evening surplus into steady revenue. Setup was instant, and all 5 boxes we listed sold out within 40 minutes."
+            </blockquote>
+            <div class="testimonial-author">
+              <div class="author-avatar" aria-hidden="true">PS</div>
+              <div>
+                <div class="author-name">Priya S.</div>
+                <div class="author-role">Owner · The Morning Oven Bakery</div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FINAL CTA ==================== -->
+    <section class="section final-cta" id="cta" aria-labelledby="ctaHeading">
+      <div class="container">
+        <span class="section-label">Ready to Start?</span>
+        <h2 class="section-title" id="ctaHeading">Don't waste it.<br/>Taste it.</h2>
+        <p class="section-subtitle">Your next delectable meal is waiting to be rescued at an unbeatable price.</p>
+        <div class="final-cta-actions">
+          <a href="#discover" class="btn btn-primary btn-lg" id="ctaDiscoverBtn">
+            🍽️ Discover Food
+          </a>
+          <a href="#signup" class="btn btn-outline btn-lg" id="ctaSignupBtn" onclick="showToast('Join flow will connect with backend!'); return false;">
+            Join Plenti Today
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-top">
+
+        <!-- Brand Info -->
+        <div class="footer-brand">
+          <div class="logo">
+            <div class="logo-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2C6.5 2 2 6.5 2 12c0 3.5 1.8 6.6 4.6 8.4"/>
+                <path d="M12 22a10 10 0 0 0 10-10c0-5.5-4.5-10-10-10"/>
+                <path d="M12 6v6l4 2"/>
+                <path d="M16 22a4 4 0 0 0-8 0"/>
+              </svg>
+            </div>
+            <div class="logo-text">
+              <span class="brand-name">Plenti</span>
+              <span class="brand-tagline">Save More · Waste Less</span>
+            </div>
+          </div>
+          <p class="footer-tagline">
+            Every meal deserves a chance. Connecting quality surplus food from local eateries with hungry, conscious communities.
+          </p>
+          <div class="footer-social" aria-label="Social media links">
+            <a href="#" class="social-link" aria-label="Instagram">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="#" class="social-link" aria-label="LinkedIn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            </a>
+            <a href="#" class="social-link" aria-label="Twitter">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Discover Column -->
+        <div class="footer-col">
+          <h3 class="footer-col-title">Discover</h3>
+          <ul class="footer-links">
+            <li><a href="#discover" class="footer-link">Browse Surplus Food</a></li>
+            <li><a href="#discover" class="footer-link">Bakeries &amp; Cafes</a></li>
+            <li><a href="#how-it-works" class="footer-link">How It Works</a></li>
+            <li><a href="#impact" class="footer-link">Our Impact</a></li>
+          </ul>
+        </div>
+
+        <!-- Businesses Column -->
+        <div class="footer-col">
+          <h3 class="footer-col-title">Businesses</h3>
+          <ul class="footer-links">
+            <li><a href="#for-businesses" class="footer-link">Partner With Us</a></li>
+            <li><a href="#for-businesses" class="footer-link">Merchant Portal</a></li>
+            <li><a href="#for-businesses" class="footer-link">Food Waste Insights</a></li>
+          </ul>
+        </div>
+
+        <!-- Company Column -->
+        <div class="footer-col">
+          <h3 class="footer-col-title">Company</h3>
+          <ul class="footer-links">
+            <li><a href="#" class="footer-link">About Plenti</a></li>
+            <li><a href="#" class="footer-link">Sustainability Mission</a></li>
+            <li><a href="#" class="footer-link">Contact Support</a></li>
+            <li><a href="#" class="footer-link">Careers</a></li>
+          </ul>
+        </div>
+
+        <!-- Legal Column -->
+        <div class="footer-col">
+          <h3 class="footer-col-title">Legal</h3>
+          <ul class="footer-links">
+            <li><a href="#" class="footer-link">Privacy Policy</a></li>
+            <li><a href="#" class="footer-link">Terms of Service</a></li>
+            <li><a href="#" class="footer-link">Food Safety Guidelines</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 Plenti. All rights reserved. Save More. Waste Less.</p>
+        <div class="footer-bottom-links">
+          <a href="#" class="footer-bottom-link">Privacy</a>
+          <a href="#" class="footer-bottom-link">Terms</a>
+          <a href="#" class="footer-bottom-link">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== FOOD DETAILS & RESERVATION MODAL ==================== -->
+  <div class="modal-backdrop" id="foodReservationModal" role="dialog" aria-modal="true" aria-labelledby="resModalTitle">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="resModalTitle">Reserve Surplus Food</h3>
+        <button class="modal-close" onclick="closeFoodModal()" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <div class="modal-body" id="resModalBody">
+        <img id="resModalImage" src="" alt="Surplus Box Image" style="width:100%; height:200px; object-fit:cover; border-radius:var(--radius-md); margin-bottom:16px;" />
+
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; gap:16px;">
+          <div>
+            <h4 id="resModalFoodName" style="font-size:1.25rem; font-weight:800; color:var(--color-text-main); margin-bottom:4px;">Food Item Name</h4>
+            <div style="font-size:0.875rem; color:var(--color-text-muted);">
+              📍 <strong id="resModalRestaurant">Store Name</strong> · <span id="resModalAddress">Address</span>
+            </div>
+          </div>
+          <div style="text-align:right; flex-shrink:0;">
+            <div style="font-size:1.4rem; font-weight:850; color:var(--color-primary);" id="resModalPrice">₹0</div>
+            <div style="font-size:0.85rem; color:var(--color-text-subtle); text-decoration:line-through;" id="resModalOrigPrice">₹0</div>
+          </div>
+        </div>
+
+        <p id="resModalDesc" style="font-size:0.9rem; color:var(--color-text-muted); margin-bottom:16px; line-height:1.5;">
+          Description of the surplus package.
+        </p>
+
+        <div style="background:#F8FAFC; border:1px solid var(--color-border); border-radius:var(--radius-md); padding:12px 16px; margin-bottom:18px; font-size:0.85rem;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+            <span>⏰ Pickup Window:</span>
+            <strong id="resModalPickup">7:30 PM – 9:00 PM</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span>📦 Remaining Stock:</span>
+            <strong id="resModalRemaining" style="color:var(--color-primary);">3 available</strong>
+          </div>
+        </div>
+
+        <!-- Quantity Stepper -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+          <span style="font-weight:700; font-size:0.95rem;">Select Quantity:</span>
+          <div class="qty-stepper">
+            <button class="qty-btn" type="button" id="qtyMinusBtn" aria-label="Decrease quantity">−</button>
+            <span class="qty-val" id="resModalQtyVal">1</span>
+            <button class="qty-btn" type="button" id="qtyPlusBtn" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+
+        <!-- Payment Method Toggle -->
+        <div style="margin-bottom:18px;">
+          <label style="font-size:0.85rem; font-weight:700; color:var(--color-text-main); display:block; margin-bottom:8px;">Select Payment Option:</label>
+          <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:8px;">
+            <label class="cat-pill active" style="text-align:center; padding:10px 8px; font-size:0.82rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;" id="payRazorpayLabel">
+              <input type="radio" name="payMethod" value="RAZORPAY" checked style="display:none;" />
+              <span>💳 Pay Online (UPI / Card)</span>
+            </label>
+            <label class="cat-pill" style="text-align:center; padding:10px 8px; font-size:0.82rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;" id="payCashLabel">
+              <input type="radio" name="payMethod" value="CASH_ON_PICKUP" style="display:none;" />
+              <span>💵 Cash on Pickup</span>
+            </label>
+          </div>
+          <div style="font-size:0.75rem; color:var(--color-text-subtle); margin-top:6px;">
+            🔒 Secure transaction with instant digital pickup voucher
+          </div>
+        </div>
+
+        <!-- Total Calculation -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:14px; border-top:1px solid var(--color-border);">
+          <span style="font-size:1.1rem; font-weight:800; color:var(--color-text-main);">Total Amount:</span>
+          <span style="font-size:1.4rem; font-weight:850; color:var(--color-primary);" id="resModalTotal">₹0.00</span>
+        </div>
+
+        <div id="bookingErrorNotice" style="display:none; color:var(--color-accent-coral); font-size:0.85rem; margin-top:12px; font-weight:600; text-align:center;"></div>
+      </div>
+
+      <div class="modal-footer" id="resModalFooter">
+        <button type="button" class="btn btn-outline" onclick="closeFoodModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmReservationBtn">Lock In Reservation ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript File -->
+  <script src="assets/js/main.js"></script>
+
+</body>
+</html>
