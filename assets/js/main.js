@@ -161,6 +161,7 @@ let modalQuantity = 1;
 // Document Ready
 document.addEventListener("DOMContentLoaded", () => {
   initNavbar();
+  initAuthNavbarState();
   initMarketplace();
   initModal();
   initStatsObserver();
@@ -199,6 +200,47 @@ function initNavbar() {
     });
   }
 }
+
+// ==================== AUTH NAVBAR STATE ====================
+function initAuthNavbarState() {
+  const userStr = localStorage.getItem('plenti_user');
+  if (!userStr) return;
+
+  try {
+    const user = JSON.parse(userStr);
+    const navActions = document.getElementById('navActions');
+    const mobileNavActions = document.getElementById('mobileNavActions');
+    const displayName = user.name || user.first_name || 'Food Hero';
+
+    if (navActions) {
+      navActions.innerHTML = `
+        <span style="font-size:0.9rem; font-weight:700; color:var(--color-primary-dark); display:inline-flex; align-items:center; gap:6px;">
+          👋 Hi, <strong>${displayName}</strong>
+        </span>
+        <button class="btn btn-outline btn-sm" onclick="handleLogout()">Log Out</button>
+      `;
+    }
+
+    if (mobileNavActions) {
+      mobileNavActions.innerHTML = `
+        <div style="font-weight:700; font-size:1rem; color:var(--color-primary-dark); margin-bottom:8px;">
+          👋 Signed in as <strong>${displayName}</strong>
+        </div>
+        <button class="btn btn-outline" style="width:100%;" onclick="handleLogout()">Log Out</button>
+      `;
+    }
+  } catch (err) {
+    console.warn('Failed to parse user session', err);
+  }
+}
+
+window.handleLogout = function() {
+  localStorage.removeItem('plenti_user');
+  localStorage.removeItem('plenti_access_token');
+  localStorage.removeItem('plenti_refresh_token');
+  showToast('Logged out successfully.');
+  setTimeout(() => location.reload(), 600);
+};
 
 // ==================== MARKETPLACE LOGIC ====================
 function initMarketplace() {
