@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+client/node_modules/
+client/dist/
+
+# Environment Variables (Keep secrets local)
+server/.env
+.env
+.env.local
+
+# Logs & System Files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db

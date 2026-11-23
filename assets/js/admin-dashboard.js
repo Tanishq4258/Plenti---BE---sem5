@@ -15,7 +15,66 @@ document.addEventListener("DOMContentLoaded", () => {
   renderAdminAnalytics();
   initAdminSearchAndFilters();
   initSidebarToggle();
+  syncAdminWithMongoDB();
 });
+
+async function syncAdminWithMongoDB() {
+  if (!window.PlentiAPI) return;
+  try {
+    const isOnline = await PlentiAPI.checkHealth();
+    if (!isOnline) return;
+
+    // Fetch live overview metrics from MongoDB
+    const ovRes = await PlentiAPI.admin.getOverview();
+    if (ovRes && ovRes.data) {
+      const d = ovRes.data;
+      if (document.getElementById('statTotalCustomers')) document.getElementById('statTotalCustomers').textContent = d.totalCustomers?.toLocaleString();
+      if (document.getElementById('statTotalBusinesses')) document.getElementById('statTotalBusinesses').textContent = d.totalBusinesses?.toLocaleString();
+      if (document.getElementById('statActiveListings')) document.getElementById('statActiveListings').textContent = d.activeListings?.toLocaleString();
+      if (document.getElementById('statTotalRevenue')) document.getElementById('statTotalRevenue').textContent = '₹' + d.totalRevenue?.toLocaleString();
+      if (document.getElementById('statFoodSaved')) document.getElementById('statFoodSaved').textContent = d.totalFoodSavedKg?.toLocaleString() + ' kg';
+      if (document.getElementById('statPendingVerifications')) document.getElementById('statPendingVerifications').textContent = d.pendingVerifications;
+    }
+
+    // Fetch registered businesses from MongoDB
+    const bRes = await PlentiAPI.admin.getAllBusinesses();
+    if (bRes && bRes.data && bRes.data.length > 0) {
+      adminState.businesses = bRes.data.map(b => ({
+        id: b._id,
+        name: b.businessName,
+        owner: b.owner?.name || 'Partner',
+        email: b.email,
+        phone: b.phone || '+91 98765 00000',
+        category: b.category,
+        address: b.address,
+        regDate: new Date(b.createdAt).toISOString().split('T')[0],
+        status: b.verificationStatus === 'verified' ? 'Verified' : (b.status === 'suspended' ? 'Suspended' : 'Pending'),
+        listingsCount: 4,
+        foodRescuedKg: b.totalFoodRescuedKg || 120
+      }));
+      renderAdminBusinesses();
+    }
+
+    // Fetch customers from MongoDB
+    const cRes = await PlentiAPI.admin.getAllCustomers();
+    if (cRes && cRes.data && cRes.data.length > 0) {
+      adminState.customers = cRes.data.map(c => ({
+        id: c._id,
+        name: c.name,
+        email: c.email,
+        phone: c.phone || '+91 99887 00000',
+        city: c.city || 'Chandigarh',
+        joinDate: new Date(c.createdAt).toISOString().split('T')[0],
+        totalOrders: 6,
+        savedKg: c.foodRescuedKg || 18,
+        status: c.status === 'suspended' ? 'Suspended' : 'Active'
+      }));
+      renderAdminCustomers();
+    }
+  } catch (err) {
+    console.log('[Plenti] Admin MongoDB sync note:', err.message);
+  }
+}
 
 // Current local state initialized from PLENTI_MOCK
 const adminState = {

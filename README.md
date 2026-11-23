@@ -1,63 +1,79 @@
 # Plenti – Save More. Waste Less.
+### Full-Stack Surplus Food Marketplace (MongoDB, Express, React & Node.js)
 
-**Plenti** is a surplus-food marketplace designed to reduce food waste by connecting food businesses with customers looking for quality food at affordable prices.
-
-The platform allows restaurants, cafes, bakeries, and other food businesses to list their unsold food items at discounted prices, giving customers an opportunity to purchase them at lower costs instead of letting perfectly edible food go to waste.
-
-## 🚀 Key Features
-
-- **Surplus Food Listings:** Businesses can list their unsold food items with discounted prices, descriptions, quantities, and availability.
-- **Customer Marketplace:** Customers can explore nearby surplus-food deals and purchase items at reduced prices.
-- **Business Dashboard:** Dedicated dashboard for businesses to manage listings, inventory, orders, and sales.
-- **Order Management:** Customers can place orders and track their order status.
-- **Secure Authentication:** Secure user authentication, Google Sign-In, and email verification.
-- **Role-Based Access:** Separate access and dashboards for customers, businesses, and administrators.
-- **Online Payments:** Integrated payment gateway for secure transactions.
-- **Admin Dashboard:** Centralized management of users, businesses, listings, and platform activities.
-
-## 🎯 Problem We Aim to Solve
-
-A significant amount of perfectly edible food goes to waste every day because restaurants, cafes, and bakeries cannot always sell all their prepared inventory.
-
-At the same time, customers are constantly looking for affordable food options.
-
-Plenti bridges this gap by creating a platform where surplus food can find customers instead of ending up as waste.
-
-## 💡 Our Solution
-
-Plenti provides a digital marketplace where food businesses can list their excess food at discounted prices, and customers can discover and purchase these items before they become waste.
-
-This creates a win-win ecosystem:
-- **Businesses:** Recover some of the cost of unsold inventory.
-- **Customers:** Get quality food at affordable prices.
-- **Environment:** Reduce avoidable food waste.
-
-## 🏗️ Project Architecture
-
-Plenti follows a client-server architecture:
-
-1. Frontend client handles the user interface and dashboards.
-2. Backend services manage business logic and API requests.
-3. Database stores user, business, listing, inventory, order, and payment-related data.
-4. Role-based permissions and secure authentication secure platform access.
-5. Payment gateway integration handles secure payment processing.
-
-## 🌱 Future Scope
-
-- Location-based discovery of surplus food.
-- Real-time inventory and listing availability.
-- Smart recommendations based on customer preferences.
-- Expansion to multiple cities and regions.
-- Analytics for businesses to understand food waste patterns.
-- Partnerships with food banks and charitable organizations.
-- Mobile applications for Android and iOS.
-
-## 🎯 Vision
-
-Our vision is to make surplus food accessible, affordable, and valuable by building a sustainable ecosystem that benefits businesses, consumers, and the environment.
-
-**Plenti – Every Meal Deserves a Chance.**
+**Plenti** is a surplus-food marketplace designed to reduce food waste by connecting food businesses (bakeries, cafes, restaurants) with customers looking for quality meals at discounted prices.
 
 ---
 
-*Developed as a project focused on sustainability, affordability, and reducing food waste.*
+## 🏗️ Architecture & Tech Stack
+
+- **Database:** MongoDB (via Mongoose schemas with atomic inventory locking)
+- **Backend API:** Node.js + Express REST API with JWT authentication, CORS, and role-based permissions (`customer`, `business`, `admin`)
+- **Frontend Options:**
+  - **React SPA:** Modern Vite + React single-page app located in `/client`
+  - **HTML5/JS Client:** Vanilla web portals (`index.html`, `business-dashboard.html`, `admin-dashboard.html`) connected to the same live MongoDB backend via `/assets/js/api.js`
+
+---
+
+## ⚡ Quick Start Guide
+
+### 1. Configure MongoDB Connection String
+Open `server/.env` and paste your MongoDB URI (either MongoDB Atlas connection string or local MongoDB):
+```env
+PORT=5000
+NODE_ENV=development
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.abcde.mongodb.net/plenti_db?retryWrites=true&w=majority
+JWT_SECRET=plenti_super_secure_jwt_secret_key_2026_xyz987
+JWT_EXPIRE=7d
+```
+
+### 2. Seed the Database with Realistic Data
+Populate MongoDB with demo accounts (Admin, Merchants, Customers) and surplus food listings:
+```bash
+npm run seed
+```
+
+### 3. Run the Backend Server
+Start the Express API server:
+```bash
+npm run dev
+# Server will run at: http://localhost:5000/api
+```
+
+### 4. Run the React Client (Optional)
+Start the modern React frontend:
+```bash
+npm run client
+# React app will run at: http://localhost:3000
+```
+Or simply open `index.html`, `business-dashboard.html`, or `admin-dashboard.html` in your browser. They automatically connect to `http://localhost:5000/api`!
+
+---
+
+## 🔑 Seed Test Credentials
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Platform Admin** | `admin@plenti.com` | `password123` |
+| **Merchant (Artisan Bakery)** | `pierre@artisanbakery.com` | `password123` |
+| **Merchant (Green Leaf Cafe)** | `ananya@greenleafcafe.com` | `password123` |
+| **Customer** | `rohan@example.com` | `password123` |
+
+---
+
+## 📡 REST API Reference
+
+| Endpoint | Method | Role | Description |
+| :--- | :--- | :--- | :--- |
+| `/api/health` | `GET` | Public | Service health & status check |
+| `/api/auth/register` | `POST` | Public | Register customer or food business |
+| `/api/auth/login` | `POST` | Public | Authenticate user & return JWT token |
+| `/api/auth/me` | `GET` | Authenticated | Retrieve current user profile |
+| `/api/listings` | `GET` | Public | Browse surplus listings (filters: category, search) |
+| `/api/listings` | `POST` | Business | Publish new surplus food listing |
+| `/api/listings/:id/stock` | `PATCH` | Business | Real-time increment/decrement of stock |
+| `/api/orders` | `POST` | Customer | Atomic food reservation booking |
+| `/api/orders/store-orders` | `GET` | Business | Merchant incoming orders |
+| `/api/orders/:id/status` | `PATCH` | Business/Admin | Transition status (`pending` ➔ `ready` ➔ `completed`) |
+| `/api/admin/overview` | `GET` | Admin | Aggregate platform metrics & analytics |
+| `/api/admin/businesses/:id/status` | `PATCH` | Admin | Approve or suspend business partners |

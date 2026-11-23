@@ -16,7 +16,68 @@ document.addEventListener("DOMContentLoaded", () => {
   initImageUploadPreview();
   initBusinessProfileForm();
   initBusinessSidebarToggle();
+  syncBusinessWithMongoDB();
 });
+
+async function syncBusinessWithMongoDB() {
+  if (!window.PlentiAPI) return;
+  try {
+    const isOnline = await PlentiAPI.checkHealth();
+    if (!isOnline) return;
+
+    // Fetch live listings from MongoDB
+    const listRes = await PlentiAPI.listings.getAll();
+    if (listRes && listRes.data && listRes.data.length > 0) {
+      bizState.listings = listRes.data.map(l => ({
+        id: l._id,
+        name: l.title,
+        description: l.description,
+        category: l.category,
+        originalPrice: l.originalPrice,
+        discountedPrice: l.discountedPrice,
+        discountPercent: l.discountPercentage || Math.round(((l.originalPrice - l.discountedPrice) / l.originalPrice) * 100),
+        availableQty: l.quantity,
+        pickupStart: l.pickupStart || '18:00',
+        pickupEnd: l.pickupEnd || '21:30',
+        status: l.status,
+        image: l.image,
+        instructions: l.instructions
+      }));
+      bizState.inventory = listRes.data.map(l => ({
+        id: l._id,
+        name: l.title,
+        category: l.category,
+        stock: l.quantity,
+        targetStock: 8,
+        status: l.quantity > 2 ? 'In Stock' : (l.quantity > 0 ? 'Low Stock' : 'Sold Out')
+      }));
+      renderBusinessListings();
+      renderBusinessInventory();
+      renderBusinessOverview();
+    }
+
+    // Fetch store orders from MongoDB
+    const ordRes = await PlentiAPI.orders.getStoreOrders();
+    if (ordRes && ordRes.data && ordRes.data.length > 0) {
+      bizState.orders = ordRes.data.map(o => ({
+        id: o.orderId,
+        _id: o._id,
+        customerName: o.customer?.name || 'Customer',
+        items: o.items.map(i => `${i.title} (${i.quantity}x)`).join(', '),
+        quantity: o.items.reduce((acc, i) => acc + i.quantity, 0),
+        total: o.totalAmount,
+        time: new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        paymentStatus: o.paymentStatus === 'paid' ? 'Paid' : 'Pending',
+        status: o.orderStatus.charAt(0).toUpperCase() + o.orderStatus.slice(1),
+        pickupCode: o.pickupCode
+      }));
+      renderBusinessOrders();
+      renderBusinessOverview();
+    }
+  } catch (err) {
+    console.log('[Plenti] MongoDB sync note:', err.message);
+  }
+}
 
 // Local business state initialized from PLENTI_MOCK
 const bizState = {

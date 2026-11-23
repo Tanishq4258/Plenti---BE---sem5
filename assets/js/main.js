@@ -288,6 +288,33 @@ function initMarketplace() {
 
   // Initial render
   renderFoodGrid();
+
+  // Fetch live surplus listings from MongoDB backend if online
+  if (window.PlentiAPI) {
+    PlentiAPI.listings.getAll().then(res => {
+      if (res && res.data && res.data.length > 0) {
+        SURPLUS_INVENTORY = res.data.map(item => ({
+          id: item._id,
+          title: item.title,
+          store: item.business?.businessName || 'Plenti Merchant',
+          address: item.business?.address || 'Chandigarh',
+          distance: 'Nearby',
+          category: (item.category || 'meals').toLowerCase(),
+          rating: '4.8',
+          reviewsCount: 42,
+          originalPrice: item.originalPrice,
+          discountedPrice: item.discountedPrice,
+          discountPercent: item.discountPercentage || Math.round(((item.originalPrice - item.discountedPrice) / item.originalPrice) * 100),
+          remainingQty: item.quantity,
+          pickupWindow: `${item.pickupStart || '18:00'} – ${item.pickupEnd || '21:30'}`,
+          description: item.description,
+          badge: item.quantity <= 2 ? '🔥 Selling Fast' : '🌱 Rescued Today',
+          image: item.image
+        }));
+        renderFoodGrid();
+      }
+    }).catch(() => {});
+  }
 }
 
 function renderFoodGrid() {

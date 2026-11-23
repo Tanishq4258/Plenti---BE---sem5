@@ -204,41 +204,56 @@ function initLoginForm() {
 
     if (!valid) return;
 
-    // Simulate login processing
+    // Login processing with MongoDB API
     submitBtn.disabled = true;
     submitBtn.textContent = 'Logging in…';
 
-    setTimeout(() => {
-      // Determine user role based on email or credentials
-      const lowerEmail = email.toLowerCase();
-      const isAdmin = lowerEmail.includes('admin');
-      const isBusiness = lowerEmail.includes('merchant') || lowerEmail.includes('business') || lowerEmail.includes('restaurant') || lowerEmail.includes('bakery') || lowerEmail.includes('cafe');
-      const role = isAdmin ? 'admin' : (isBusiness ? 'business' : 'customer');
-
-      // Create user profile
-      const user = {
-        name: email.split('@')[0],
-        email: email,
-        account_type: role
-      };
-
-      Auth.saveSession(user);
-
+    const proceedLogin = (user, token) => {
+      Auth.saveSession(user, token);
       const successEl = document.getElementById('loginSuccess');
-      if (successEl) {
-        successEl.classList.add('show');
-      }
+      if (successEl) successEl.classList.add('show');
 
       setTimeout(() => {
-        if (isAdmin) {
+        const role = user.role || user.account_type;
+        if (role === 'admin') {
           window.location.href = 'admin-dashboard.html';
-        } else if (isBusiness) {
+        } else if (role === 'business') {
           window.location.href = 'business-dashboard.html';
         } else {
           window.location.href = 'index.html';
         }
-      }, 1000);
-    }, 700);
+      }, 900);
+    };
+
+    if (window.PlentiAPI) {
+      PlentiAPI.auth.login(email, password)
+        .then(res => {
+          proceedLogin(res.user, res.token);
+        })
+        .catch(err => {
+          console.warn('API login attempt:', err.message);
+          // If the backend specifically answered with invalid credentials, notify user
+          if (err.message && err.message.toLowerCase().includes('invalid')) {
+            showError('loginPassword', err.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Log In';
+            return;
+          }
+          // Offline / dev fallback
+          const lowerEmail = email.toLowerCase();
+          const isAdmin = lowerEmail.includes('admin');
+          const isBusiness = lowerEmail.includes('merchant') || lowerEmail.includes('business') || lowerEmail.includes('restaurant') || lowerEmail.includes('bakery') || lowerEmail.includes('cafe');
+          const role = isAdmin ? 'admin' : (isBusiness ? 'business' : 'customer');
+          const fallbackUser = { name: email.split('@')[0], email, account_type: role, role };
+          proceedLogin(fallbackUser, 'demo_token_' + Date.now());
+        });
+    } else {
+      setTimeout(() => {
+        const lowerEmail = email.toLowerCase();
+        const role = lowerEmail.includes('admin') ? 'admin' : 'customer';
+        proceedLogin({ name: email.split('@')[0], email, role }, 'demo_token');
+      }, 700);
+    }
   });
 }
 
@@ -349,26 +364,13 @@ function initSignupForm() {
 
     if (!valid) return;
 
-    // Simulate account registration
     submitBtn.disabled = true;
     submitBtn.textContent = 'Creating account…';
 
-    setTimeout(() => {
-      const user = {
-        name: `${firstName} ${lastName}`.trim(),
-        first_name: firstName,
-        last_name: lastName,
-        email: email,
-        phone: phoneInput?.value.trim() || '',
-        account_type: selectedAccountType
-      };
-
-      Auth.saveSession(user);
-
+    const proceedSignup = (user, token) => {
+      Auth.saveSession(user, token);
       const successEl = document.getElementById('signupSuccess');
-      if (successEl) {
-        successEl.classList.add('show');
-      }
+      if (successEl) successEl.classList.add('show');
 
       setTimeout(() => {
         if (selectedAccountType === 'business') {
@@ -376,8 +378,45 @@ function initSignupForm() {
         } else {
           window.location.href = 'index.html';
         }
-      }, 1200);
-    }, 800);
+      }, 1000);
+    };
+
+    const payload = {
+      name: `${firstName} ${lastName}`.trim(),
+      email,
+      password,
+      role: selectedAccountType,
+      phone: phoneInput?.value.trim() || '',
+      businessName: selectedAccountType === 'business' ? `${firstName}'s Store` : undefined
+    };
+
+    if (window.PlentiAPI) {
+      PlentiAPI.auth.register(payload)
+        .then(res => {
+          proceedSignup(res.user, res.token);
+        })
+        .catch(err => {
+          console.warn('API registration attempt:', err.message);
+          if (err.message && err.message.toLowerCase().includes('already exists')) {
+            showError('signupEmail', err.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create Account';
+            return;
+          }
+          const fallbackUser = {
+            name: `${firstName} ${lastName}`.trim(),
+            email,
+            phone: phoneInput?.value.trim() || '',
+            account_type: selectedAccountType,
+            role: selectedAccountType
+          };
+          proceedSignup(fallbackUser, 'demo_token_' + Date.now());
+        });
+    } else {
+      setTimeout(() => {
+        proceedSignup({ name: `${firstName} ${lastName}`.trim(), email, account_type: selectedAccountType }, 'demo_token');
+      }, 700);
+    }
   });
 }
 
