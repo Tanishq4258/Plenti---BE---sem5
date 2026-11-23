@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Plenti Food Business Portal — Manage surplus food listings, live customer orders, inventory stock, and track revenue and environmental impact." />
+  <title>Food Business Dashboard — Plenti | Merchant Portal</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;850&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+</head>
+<body class="dash-body">
+
+  <div class="dash-layout">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="dash-sidebar" aria-label="Merchant Navigation">
+      <div class="dash-brand">
+        <a href="index.html" class="dash-logo" aria-label="Plenti Home">
+          <div class="dash-logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2C6.5 2 2 6.5 2 12c0 3.5 1.8 6.6 4.6 8.4"/>
+              <path d="M12 22a10 10 0 0 0 10-10c0-5.5-4.5-10-10-10"/>
+              <path d="M12 6v6l4 2"/>
+              <path d="M16 22a4 4 0 0 0-8 0"/>
+            </svg>
+          </div>
+          <div class="dash-logo-text">
+            <span class="dash-brand-name">Plenti</span>
+            <span class="dash-role-badge role-business">Food Business</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="dash-nav">
+        <a href="#overview" class="dash-nav-item active" data-tab="overview">
+          <span class="dash-nav-icon">📊</span>
+          <span>Overview</span>
+        </a>
+        <a href="#listings" class="dash-nav-item" data-tab="listings">
+          <span class="dash-nav-icon">🥐</span>
+          <span>My Listings</span>
+        </a>
+        <a href="#add-listing" class="dash-nav-item" data-tab="add-listing">
+          <span class="dash-nav-icon">➕</span>
+          <span>Add Listing</span>
+        </a>
+        <a href="#orders" class="dash-nav-item" data-tab="orders">
+          <span class="dash-nav-icon">🔔</span>
+          <span>Incoming Orders</span>
+          <span class="dash-nav-badge">3</span>
+        </a>
+        <a href="#inventory" class="dash-nav-item" data-tab="inventory">
+          <span class="dash-nav-icon">📦</span>
+          <span>Inventory Tracker</span>
+        </a>
+        <a href="#analytics" class="dash-nav-item" data-tab="analytics">
+          <span class="dash-nav-icon">📈</span>
+          <span>Business Analytics</span>
+        </a>
+        <a href="#profile" class="dash-nav-item" data-tab="profile">
+          <span class="dash-nav-icon">🏪</span>
+          <span>Storefront Profile</span>
+        </a>
+        <a href="#settings" class="dash-nav-item" data-tab="settings">
+          <span class="dash-nav-icon">⚙️</span>
+          <span>Store Settings</span>
+        </a>
+
+        <div class="dash-nav-divider"></div>
+
+        <a href="index.html" class="dash-nav-item" target="_blank">
+          <span class="dash-nav-icon">🌐</span>
+          <span>View Marketplace ↗</span>
+        </a>
+        <a href="admin-dashboard.html" class="dash-nav-item" target="_blank">
+          <span class="dash-nav-icon">🛡️</span>
+          <span>Admin Portal ↗</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="dash-sidebar-footer">
+        <div class="dash-user-profile">
+          <div class="dash-user-avatar" style="background:linear-gradient(135deg, #10B981, #047857);">MO</div>
+          <div class="dash-user-meta">
+            <span class="dash-user-name">The Morning Oven</span>
+            <span class="dash-user-role">Sector 17, Chandigarh</span>
+          </div>
+        </div>
+        <a href="login.html" class="dash-logout-btn" title="Sign out" aria-label="Sign out">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN CONTENT AREA ==================== -->
+    <main class="dash-main">
+
+      <!-- Topbar -->
+      <header class="dash-topbar">
+        <div class="dash-topbar-left">
+          <button class="dash-menu-toggle" id="bizMenuToggle" aria-label="Toggle navigation drawer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+          <h1 class="dash-page-heading" id="bizPageTitle">Business Dashboard Overview</h1>
+        </div>
+
+        <div class="dash-topbar-right">
+          <span class="live-pulse">Store Open for Orders</span>
+          <button type="button" class="btn btn-primary btn-sm" onclick="switchBusinessTab('add-listing')">
+            + Add Surplus Box
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Container -->
+      <div class="dash-content">
+
+        <!-- ==================== TAB 1: OVERVIEW ==================== -->
+        <section class="dash-section active" id="sec-overview">
+
+          <!-- Stat Cards Grid -->
+          <div class="dash-stats-grid">
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon green">🥐</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="bizStatActiveListings">0</div>
+                <div class="dash-stat-label">Active Listings</div>
+                <div class="dash-stat-trend">Live on Plenti</div>
+              </div>
+            </div>
+
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon amber">🔔</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="bizStatPendingOrders">0</div>
+                <div class="dash-stat-label">Pending Orders</div>
+                <div class="dash-stat-trend" style="color:var(--dash-amber);">Pickup in ~45m</div>
+              </div>
+            </div>
+
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon blue">📦</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="bizStatCompletedOrders">0</div>
+                <div class="dash-stat-label">Completed Orders</div>
+                <div class="dash-stat-trend">↑ 98% satisfaction</div>
+              </div>
+            </div>
+
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon green">💰</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="bizStatEarnings">₹0</div>
+                <div class="dash-stat-label">Recovered Revenue</div>
+                <div class="dash-stat-trend">↑ +18.4% this month</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Impact Metric -->
+          <div class="dash-stats-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom:28px;">
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon purple">🌍</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="bizStatFoodRescued">0 kg</div>
+                <div class="dash-stat-label">Surplus Food Rescued</div>
+                <div class="dash-stat-trend">Kept completely out of bins</div>
+              </div>
+            </div>
+
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon blue">⭐</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value">4.9 / 5.0</div>
+                <div class="dash-stat-label">Average Foodie Rating</div>
+                <div class="dash-stat-trend">Based on 142 reviews</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sales Overview Chart -->
+          <div class="dash-chart-card">
+            <div class="dash-chart-header">
+              <div>
+                <h3 style="font-size:1.15rem; font-weight:800; color:var(--dash-text);">Surplus Sales Overview</h3>
+                <p style="font-size:0.85rem; color:var(--dash-text-muted);">Recovered revenue from unsold evening inventory</p>
+              </div>
+              <div class="chart-period-tabs">
+                <button type="button" class="chart-tab-btn active biz-chart-tab-btn" data-period="weekly">Weekly</button>
+                <button type="button" class="chart-tab-btn biz-chart-tab-btn" data-period="monthly">Monthly</button>
+              </div>
+            </div>
+            <div class="chart-svg-container" id="bizSalesChartSvg"></div>
+          </div>
+
+          <!-- Recent Incoming Orders -->
+          <div class="data-panel">
+            <div class="data-panel-header">
+              <div class="data-panel-title-wrap">
+                <h3 class="data-panel-title">Recent Customer Orders</h3>
+                <span class="data-panel-count">Today</span>
+              </div>
+              <a href="#orders" class="btn btn-outline btn-sm" onclick="switchBusinessTab('orders')">View All Orders →</a>
+            </div>
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Order Code</th>
+                    <th>Customer Name</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Pickup Window</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="bizRecentOrdersTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ==================== TAB 2: MY LISTINGS ==================== -->
+        <section class="dash-section" id="sec-listings">
+          <div class="data-panel">
+            <div class="data-panel-header">
+              <div class="data-panel-title-wrap">
+                <h3 class="data-panel-title">My Surplus Food Listings</h3>
+                <span class="data-panel-count" id="bizListingsCountBadge">Loading...</span>
+              </div>
+              <div class="data-panel-actions">
+                <input
+                  type="text"
+                  id="bizListingSearch"
+                  class="filter-input"
+                  placeholder="Search listings..."
+                  oninput="renderBusinessListings()"
+                  style="width:200px;"
+                />
+                <button type="button" class="btn btn-primary btn-sm" onclick="switchBusinessTab('add-listing')">
+                  + Add New Box
+                </button>
+              </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div style="padding:12px 24px; border-bottom:1px solid var(--dash-border); display:flex; gap:8px; overflow-x:auto;">
+              <button class="btn btn-outline btn-sm listing-filter-tab active" data-filter="all" onclick="setListingFilter('all')">All Items</button>
+              <button class="btn btn-outline btn-sm listing-filter-tab" data-filter="active" onclick="setListingFilter('active')">Active</button>
+              <button class="btn btn-outline btn-sm listing-filter-tab" data-filter="sold_out" onclick="setListingFilter('sold_out')">Sold Out</button>
+              <button class="btn btn-outline btn-sm listing-filter-tab" data-filter="expired" onclick="setListingFilter('expired')">Expired</button>
+              <button class="btn btn-outline btn-sm listing-filter-tab" data-filter="draft" onclick="setListingFilter('draft')">Draft</button>
+            </div>
+
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Food Item &amp; Category</th>
+                    <th>Price</th>
+                    <th>Discount</th>
+                    <th>Stock</th>
+                    <th>Pickup Window</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="bizListingsTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 3: ADD LISTING ==================== -->
+        <section class="dash-section" id="sec-add-listing">
+          <div class="dash-chart-card" style="max-width:760px; margin:0 auto;">
+            <div style="margin-bottom:20px; border-bottom:1px solid var(--dash-border); padding-bottom:14px;">
+              <h3 style="font-size:1.3rem; font-weight:850; color:var(--dash-text); margin-bottom:4px;">Publish a New Surplus Food Box</h3>
+              <p style="font-size:0.85rem; color:var(--dash-text-muted);">Turn today's unsold prepared food into happy customers in under 60 seconds.</p>
+            </div>
+
+            <form id="addListingForm">
+              <!-- Item Name -->
+              <div class="form-group">
+                <label class="form-label" for="newListingName">Food Item / Box Title *</label>
+                <input type="text" id="newListingName" class="form-input" placeholder="e.g. Evening Bakery Surprise Box" required />
+              </div>
+
+              <!-- Description -->
+              <div class="form-group">
+                <label class="form-label" for="newListingDesc">Description *</label>
+                <textarea id="newListingDesc" class="form-input" rows="3" placeholder="Describe the freshly baked items or meals included (e.g. 2 butter croissants, 1 chocolate muffin, and sourdough slices)." required></textarea>
+              </div>
+
+              <!-- Category & Quantity Row -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="newListingCategory">Food Category *</label>
+                  <select id="newListingCategory" class="form-input" required>
+                    <option value="Bakery" selected>🥐 Bakery &amp; Breads</option>
+                    <option value="Meals">🍲 Prepared Meals &amp; Bowls</option>
+                    <option value="Desserts">🍰 Pastries &amp; Desserts</option>
+                    <option value="Snacks">🥪 Evening Savory Snacks</option>
+                    <option value="Beverages">🥤 Specialty Beverages</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="newListingQty">Available Quantity (Boxes) *</label>
+                  <input type="number" id="newListingQty" class="form-input" min="1" max="50" value="5" required />
+                </div>
+              </div>
+
+              <!-- Pricing Row -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="newListingOrigPrice">Original Retail Value (₹) *</label>
+                  <input type="number" id="newListingOrigPrice" class="form-input" placeholder="e.g. 399" min="10" required />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="newListingDiscPrice">Surplus Discounted Price (₹) *</label>
+                  <input type="number" id="newListingDiscPrice" class="form-input" placeholder="e.g. 149" min="10" required />
+                  <span id="discountCalcBadge" class="badge badge-completed" style="margin-top:6px; display:none;"></span>
+                </div>
+              </div>
+
+              <!-- Image Upload & Preview -->
+              <div class="form-group">
+                <label class="form-label">Food Image Upload</label>
+                <div class="image-dropzone" id="newListingDropzone">
+                  <div style="font-size:2rem; margin-bottom:6px;">📸</div>
+                  <div style="font-size:0.9rem; font-weight:700; color:var(--dash-text);">Click to upload food photo</div>
+                  <div style="font-size:0.75rem; color:var(--dash-text-muted); margin-top:2px;">PNG, JPG up to 5MB (or uses high-resolution bakery placeholder)</div>
+                  <input type="file" id="newListingImageFile" accept="image/*" style="display:none;" />
+                </div>
+                <div class="image-preview-box" id="imagePreviewBox">
+                  <img id="previewImgTag" src="" alt="Preview" />
+                </div>
+              </div>
+
+              <!-- Pickup Window Row -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="newListingPickupStart">Pickup Start Time *</label>
+                  <input type="time" id="newListingPickupStart" class="form-input" value="19:30" required />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="newListingPickupEnd">Pickup End Time *</label>
+                  <input type="time" id="newListingPickupEnd" class="form-input" value="21:00" required />
+                </div>
+              </div>
+
+              <!-- Expiry & Instructions -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="newListingExpiry">Expiration Date &amp; Time</label>
+                  <input type="datetime-local" id="newListingExpiry" class="form-input" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="newListingInstructions">Customer Instructions</label>
+                  <input type="text" id="newListingInstructions" class="form-input" placeholder="e.g. Please bring an eco bag; show code at register." />
+                </div>
+              </div>
+
+              <div style="margin-top:20px; display:flex; gap:12px; justify-content:flex-end;">
+                <button type="button" class="btn btn-outline" onclick="switchBusinessTab('listings')">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="padding:10px 24px;">Publish Listing Live ✓</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 4: ORDERS ==================== -->
+        <section class="dash-section" id="sec-orders">
+          <div class="data-panel">
+            <div class="data-panel-header">
+              <div class="data-panel-title-wrap">
+                <h3 class="data-panel-title">Incoming Customer Orders</h3>
+                <span class="data-panel-count" id="bizOrdersCountBadge">Loading...</span>
+              </div>
+              <div class="data-panel-actions">
+                <input
+                  type="text"
+                  id="bizOrderSearch"
+                  class="filter-input"
+                  placeholder="Search order ID or customer..."
+                  oninput="renderBusinessOrders()"
+                  style="width:220px;"
+                />
+              </div>
+            </div>
+
+            <!-- Status Tabs -->
+            <div style="padding:12px 24px; border-bottom:1px solid var(--dash-border); display:flex; gap:8px; overflow-x:auto;">
+              <button class="btn btn-outline btn-sm order-filter-tab active" data-filter="all" onclick="setOrderFilter('all')">All</button>
+              <button class="btn btn-outline btn-sm order-filter-tab" data-filter="pending" onclick="setOrderFilter('pending')">Pending</button>
+              <button class="btn btn-outline btn-sm order-filter-tab" data-filter="confirmed" onclick="setOrderFilter('confirmed')">Confirmed</button>
+              <button class="btn btn-outline btn-sm order-filter-tab" data-filter="ready" onclick="setOrderFilter('ready')">Ready for Pickup</button>
+              <button class="btn btn-outline btn-sm order-filter-tab" data-filter="completed" onclick="setOrderFilter('completed')">Completed</button>
+              <button class="btn btn-outline btn-sm order-filter-tab" data-filter="cancelled" onclick="setOrderFilter('cancelled')">Cancelled</button>
+            </div>
+
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Order Code</th>
+                    <th>Customer Name</th>
+                    <th>Item(s)</th>
+                    <th>Total</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th>Pickup Window</th>
+                    <th>Fulfillment Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="bizOrdersTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 5: INVENTORY ==================== -->
+        <section class="dash-section" id="sec-inventory">
+          <div class="data-panel">
+            <div class="data-panel-header">
+              <div class="data-panel-title-wrap">
+                <h3 class="data-panel-title">Surplus Food Inventory Tracker</h3>
+                <span class="data-panel-count">Real-time Stock</span>
+              </div>
+              <div>
+                <span style="font-size:0.8rem; color:var(--dash-text-muted);">Quick stock updates for evening listings</span>
+              </div>
+            </div>
+
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Item Name</th>
+                    <th>Category</th>
+                    <th>Available Stock</th>
+                    <th>Low Threshold</th>
+                    <th>Status</th>
+                    <th>Last Updated</th>
+                    <th>Quick Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="bizInventoryTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 6: ANALYTICS ==================== -->
+        <section class="dash-section" id="sec-analytics">
+          <div class="dash-stats-grid">
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon green">💰</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="analyticsTotalSales">₹0</div>
+                <div class="dash-stat-label">Total Surplus Earnings</div>
+                <div class="dash-stat-trend">100% Payout directly to bank</div>
+              </div>
+            </div>
+
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon blue">📦</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="analyticsTotalOrders">0</div>
+                <div class="dash-stat-label">Orders Rescued</div>
+                <div class="dash-stat-trend">Clean zero-waste rate</div>
+              </div>
+            </div>
+
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon purple">🏷️</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="analyticsAvgOrderVal">₹0</div>
+                <div class="dash-stat-label">Avg. Order Value</div>
+                <div class="dash-stat-trend">Above city average</div>
+              </div>
+            </div>
+
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon amber">🌍</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="analyticsFoodSavedKg">0 kg</div>
+                <div class="dash-stat-label">Food Rescued from Bins</div>
+                <div class="dash-stat-trend">Equivalent to 680 meals</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+            <div class="dash-chart-card">
+              <h3 style="font-size:1.15rem; font-weight:800; color:var(--dash-text); margin-bottom:14px;">Top Selling Surplus Boxes</h3>
+              <div style="display:flex; flex-direction:column; gap:12px; font-size:0.9rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid var(--dash-border);">
+                  <div><strong>1. Artisan Bakery Surprise Box</strong></div>
+                  <span class="badge badge-completed">184 boxes sold</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid var(--dash-border);">
+                  <div><strong>2. Assorted French Croissant Duo</strong></div>
+                  <span class="badge badge-completed">82 boxes sold</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid var(--dash-border);">
+                  <div><strong>3. Country Sourdough Loaf &amp; Buns</strong></div>
+                  <span class="badge badge-completed">46 boxes sold</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div><strong>4. Evening Veggie Puff Pack</strong></div>
+                  <span class="badge badge-completed">30 boxes sold</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="dash-chart-card">
+              <h3 style="font-size:1.15rem; font-weight:800; color:var(--dash-text); margin-bottom:14px;">Customer Feedback &amp; Loyalty</h3>
+              <div style="font-size:0.9rem; color:var(--dash-text-muted); line-height:1.6;">
+                <p style="margin-bottom:12px;">
+                  🌟 <strong>94% of foodies</strong> who picked up an order from The Morning Oven rated the freshness 5 out of 5 stars.
+                </p>
+                <p style="margin-bottom:12px;">
+                  🔄 <strong>42% repeat customer rate</strong> — surplus buyers frequently return during normal morning hours for full-priced items!
+                </p>
+                <div style="background:#ECFDF5; border:1px solid #A7F3D0; padding:12px; border-radius:var(--radius-sm); color:#065F46; font-size:0.85rem;">
+                  "The croissant box was incredible. Still crispy and fresh at 8 PM. Will definitely rescue again!" — <em>Aarav R.</em>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 7: STORE PROFILE ==================== -->
+        <section class="dash-section" id="sec-profile">
+          <div class="dash-chart-card" style="max-width:760px; margin:0 auto;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--dash-border); padding-bottom:14px;">
+              <div>
+                <h3 style="font-size:1.3rem; font-weight:850; color:var(--dash-text); margin-bottom:2px;">Business Profile &amp; Storefront</h3>
+                <p style="font-size:0.85rem; color:var(--dash-text-muted);">Information visible to customers browsing on the marketplace</p>
+              </div>
+              <span class="badge badge-verified" style="font-size:0.8rem; padding:6px 12px;">✓ Verified Food Partner</span>
+            </div>
+
+            <form id="bizProfileForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="profileBizName">Business / Restaurant Name</label>
+                  <input type="text" id="profileBizName" class="form-input" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="profileBizCategory">Food Category</label>
+                  <input type="text" id="profileBizCategory" class="form-input" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="profileOwnerName">Owner / Manager Name</label>
+                  <input type="text" id="profileOwnerName" class="form-input" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="profileBizPhone">Contact Phone Number</label>
+                  <input type="tel" id="profileBizPhone" class="form-input" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="profileBizEmail">Official Email</label>
+                <input type="email" id="profileBizEmail" class="form-input" required />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="profileBizAddress">Storefront Address</label>
+                <input type="text" id="profileBizAddress" class="form-input" required />
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="profileOperatingHours">Daily Operating Hours</label>
+                  <input type="text" id="profileOperatingHours" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="profilePickupInstructions">Pickup Counter Instructions</label>
+                  <input type="text" id="profilePickupInstructions" class="form-input" />
+                </div>
+              </div>
+
+              <div style="margin-top:20px; display:flex; justify-content:flex-end;">
+                <button type="submit" class="btn btn-primary">Save Profile Changes ✓</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 8: STORE SETTINGS ==================== -->
+        <section class="dash-section" id="sec-settings">
+          <div class="dash-chart-card" style="max-width:760px; margin:0 auto;">
+            <h3 style="font-size:1.25rem; font-weight:850; color:var(--dash-text); margin-bottom:6px;">Store Settings &amp; Preferences</h3>
+            <p style="font-size:0.85rem; color:var(--dash-text-muted); margin-bottom:20px;">Payout information, automated alerts, and closing reminders</p>
+
+            <form onsubmit="showBizToast('Store preferences updated.'); return false;">
+              <h4 style="font-weight:750; font-size:0.95rem; margin-bottom:12px; color:var(--dash-text);">Direct Payout Details</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Bank Account Number</label>
+                  <input type="text" class="form-input" value="•••• •••• •••• 8492" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">IFSC Code</label>
+                  <input type="text" class="form-input" value="HDFC0001242" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Instant UPI ID (Optional)</label>
+                <input type="text" class="form-input" value="morningoven@okhdfcbank" style="max-width:320px;" />
+              </div>
+
+              <h4 style="font-weight:750; font-size:0.95rem; margin-top:20px; margin-bottom:12px; color:var(--dash-text);">Automated Reminders</h4>
+              <div style="display:flex; flex-direction:column; gap:10px; font-size:0.88rem; margin-bottom:20px;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                  <input type="checkbox" checked style="accent-color:var(--dash-primary); width:16px; height:16px;" />
+                  <span>Receive WhatsApp and SMS notification when a customer reserves a box</span>
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                  <input type="checkbox" checked style="accent-color:var(--dash-primary); width:16px; height:16px;" />
+                  <span>Send automatic reminder to staff at 7:00 PM to list evening surplus</span>
+                </label>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Save Settings ✓</button>
+            </form>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ==================== EDIT LISTING MODAL ==================== -->
+  <div class="modal-backdrop" id="bizEditListingModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="editModalTitle">Edit Surplus Food Listing</h3>
+        <button class="modal-close" onclick="closeEditModal()" aria-label="Close dialog">&times;</button>
+      </div>
+      <form id="editListingForm">
+        <div class="modal-body">
+          <input type="hidden" id="editListingId" />
+
+          <div class="form-group">
+            <label class="form-label" for="editListingName">Item Name</label>
+            <input type="text" id="editListingName" class="form-input" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="editListingDesc">Description</label>
+            <textarea id="editListingDesc" class="form-input" rows="2" required></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="editListingCategory">Category</label>
+              <select id="editListingCategory" class="form-input">
+                <option value="Bakery">Bakery</option>
+                <option value="Meals">Meals</option>
+                <option value="Desserts">Desserts</option>
+                <option value="Snacks">Snacks</option>
+                <option value="Beverages">Beverages</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="editListingQty">Available Stock</label>
+              <input type="number" id="editListingQty" class="form-input" min="0" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="editListingOrigPrice">Original Price (₹)</label>
+              <input type="number" id="editListingOrigPrice" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="editListingDiscPrice">Discount Price (₹)</label>
+              <input type="number" id="editListingDiscPrice" class="form-input" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="editListingPickupStart">Pickup Start</label>
+              <input type="time" id="editListingPickupStart" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="editListingPickupEnd">Pickup End</label>
+              <input type="time" id="editListingPickupEnd" class="form-input" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes ✓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== ORDER DETAILS MODAL ==================== -->
+  <div class="modal-backdrop" id="bizOrderModal" role="dialog" aria-modal="true" aria-labelledby="bizOrderModalTitle">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="bizOrderModalTitle">Order Pickup Verification</h3>
+        <button class="modal-close" onclick="closeBizOrderModal()" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="modal-body" id="bizOrderModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-sm" onclick="closeBizOrderModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/business-dashboard.js"></script>
+</body>
+</html>

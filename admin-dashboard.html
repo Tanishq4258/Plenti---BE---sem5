@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Plenti Platform Administration Dashboard — Monitor food businesses, customer orders, listings moderation, and waste diversion analytics." />
+  <title>Admin Dashboard — Plenti | Platform Oversight</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;850&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+</head>
+<body class="dash-body">
+
+  <div class="dash-layout">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="dash-sidebar" aria-label="Administrator Navigation">
+      <div class="dash-brand">
+        <a href="index.html" class="dash-logo" aria-label="Plenti Home">
+          <div class="dash-logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2C6.5 2 2 6.5 2 12c0 3.5 1.8 6.6 4.6 8.4"/>
+              <path d="M12 22a10 10 0 0 0 10-10c0-5.5-4.5-10-10-10"/>
+              <path d="M12 6v6l4 2"/>
+              <path d="M16 22a4 4 0 0 0-8 0"/>
+            </svg>
+          </div>
+          <div class="dash-logo-text">
+            <span class="dash-brand-name">Plenti</span>
+            <span class="dash-role-badge role-admin">Admin Portal</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="dash-nav">
+        <a href="#overview" class="dash-nav-item active" data-tab="overview">
+          <span class="dash-nav-icon">📊</span>
+          <span>System Overview</span>
+        </a>
+        <a href="#businesses" class="dash-nav-item" data-tab="businesses">
+          <span class="dash-nav-icon">🏪</span>
+          <span>Food Businesses</span>
+          <span class="dash-nav-badge amber" title="3 Pending Verification Requests">3</span>
+        </a>
+        <a href="#customers" class="dash-nav-item" data-tab="customers">
+          <span class="dash-nav-icon">👥</span>
+          <span>Customers</span>
+        </a>
+        <a href="#listings" class="dash-nav-item" data-tab="listings">
+          <span class="dash-nav-icon">🥐</span>
+          <span>Food Listings</span>
+        </a>
+        <a href="#orders" class="dash-nav-item" data-tab="orders">
+          <span class="dash-nav-icon">📦</span>
+          <span>Platform Orders</span>
+        </a>
+        <a href="#analytics" class="dash-nav-item" data-tab="analytics">
+          <span class="dash-nav-icon">📈</span>
+          <span>Reports &amp; Impact</span>
+        </a>
+        <a href="#settings" class="dash-nav-item" data-tab="settings">
+          <span class="dash-nav-icon">⚙️</span>
+          <span>System Settings</span>
+        </a>
+
+        <div class="dash-nav-divider"></div>
+
+        <a href="index.html" class="dash-nav-item" target="_blank">
+          <span class="dash-nav-icon">🌐</span>
+          <span>Public Marketplace ↗</span>
+        </a>
+        <a href="business-dashboard.html" class="dash-nav-item" target="_blank">
+          <span class="dash-nav-icon">🏪</span>
+          <span>Business Portal ↗</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="dash-sidebar-footer">
+        <div class="dash-user-profile">
+          <div class="dash-user-avatar">AD</div>
+          <div class="dash-user-meta">
+            <span class="dash-user-name">Plenti SuperAdmin</span>
+            <span class="dash-user-role">admin@plenti.in</span>
+          </div>
+        </div>
+        <a href="login.html" class="dash-logout-btn" title="Sign out" aria-label="Sign out">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </a>
+      </div>
+    </aside>
+
+    <!-- ==================== MAIN CONTENT AREA ==================== -->
+    <main class="dash-main">
+
+      <!-- Topbar -->
+      <header class="dash-topbar">
+        <div class="dash-topbar-left">
+          <button class="dash-menu-toggle" id="adminMenuToggle" aria-label="Toggle navigation drawer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+          <h1 class="dash-page-heading" id="adminPageTitle">Platform System Overview</h1>
+        </div>
+
+        <div class="dash-topbar-right">
+          <span class="live-pulse">Platform Online</span>
+          <a href="index.html" class="btn btn-outline btn-sm" target="_blank">View Marketplace ↗</a>
+        </div>
+      </header>
+
+      <!-- Content Container -->
+      <div class="dash-content">
+
+        <!-- ==================== TAB 1: OVERVIEW ==================== -->
+        <section class="dash-section active" id="sec-overview">
+
+          <!-- Stat Cards -->
+          <div class="dash-stats-grid">
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon green">👥</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="statCustCount">0</div>
+                <div class="dash-stat-label">Registered Customers</div>
+                <div class="dash-stat-trend">↑ +14% this month</div>
+              </div>
+            </div>
+
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon blue">🏪</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="statBizCount">0</div>
+                <div class="dash-stat-label">Food Businesses</div>
+                <div class="dash-stat-trend">↑ +4 verified</div>
+              </div>
+            </div>
+
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon purple">🥐</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="statListingsCount">0</div>
+                <div class="dash-stat-label">Active Surplus Boxes</div>
+                <div class="dash-stat-trend">Live across Chandigarh</div>
+              </div>
+            </div>
+
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon amber">💰</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="statRevenue">₹0</div>
+                <div class="dash-stat-label">Platform Gross Volume</div>
+                <div class="dash-stat-trend">10% Platform Commission</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Metrics Row -->
+          <div class="dash-stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:28px;">
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon green">🌍</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="statFoodSaved">0 kg</div>
+                <div class="dash-stat-label">Food Saved from Waste</div>
+                <div class="dash-stat-trend">~19,776 kg CO2 avoided</div>
+              </div>
+            </div>
+
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon blue">📦</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="statOrdersCount">0</div>
+                <div class="dash-stat-label">Total Completed Orders</div>
+                <div class="dash-stat-trend">98.4% fulfillment rate</div>
+              </div>
+            </div>
+
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon coral">⏳</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value" id="statPendingVerif">0</div>
+                <div class="dash-stat-label">Pending Verifications</div>
+                <div class="dash-stat-trend" style="color:#DC2626;">Action required</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Revenue Analytics Chart Card -->
+          <div class="dash-chart-card">
+            <div class="dash-chart-header">
+              <div>
+                <h3 style="font-size:1.15rem; font-weight:800; color:var(--dash-text);">Revenue &amp; Orders Volume</h3>
+                <p style="font-size:0.85rem; color:var(--dash-text-muted);">Real-time platform sales trends</p>
+              </div>
+              <div class="chart-period-tabs">
+                <button type="button" class="chart-tab-btn active" data-period="weekly">Weekly</button>
+                <button type="button" class="chart-tab-btn" data-period="monthly">Monthly</button>
+              </div>
+            </div>
+            <div class="chart-svg-container" id="adminRevenueChartSvg"></div>
+          </div>
+
+          <!-- Recent Platform Activity & Orders Table -->
+          <div class="data-panel">
+            <div class="data-panel-header">
+              <div class="data-panel-title-wrap">
+                <h3 class="data-panel-title">Recent Platform Orders</h3>
+                <span class="data-panel-count">Live Stream</span>
+              </div>
+              <a href="#orders" class="btn btn-outline btn-sm" onclick="switchAdminTab('orders')">View All Orders →</a>
+            </div>
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Order Code</th>
+                    <th>Customer</th>
+                    <th>Food Partner</th>
+                    <th>Amount</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="adminRecentOrdersTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Recent Businesses Table -->
+          <div class="data-panel">
+            <div class="data-panel-header">
+              <div class="data-panel-title-wrap">
+                <h3 class="data-panel-title">Partner Food Businesses</h3>
+                <span class="data-panel-count">Top Active</span>
+              </div>
+              <a href="#businesses" class="btn btn-outline btn-sm" onclick="switchAdminTab('businesses')">Manage Businesses →</a>
+            </div>
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Business Name</th>
+                    <th>Category</th>
+                    <th>Owner</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="adminRecentBizTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ==================== TAB 2: BUSINESSES ==================== -->
+        <section class="dash-section" id="sec-businesses">
+          <div class="data-panel">
+            <div class="data-panel-header">
+              <div class="data-panel-title-wrap">
+                <h3 class="data-panel-title">All Food Businesses</h3>
+                <span class="data-panel-count" id="bizFilteredCount">Loading...</span>
+              </div>
+              <div class="data-panel-actions">
+                <input
+                  type="text"
+                  id="adminBizSearch"
+                  class="filter-input"
+                  placeholder="Search business or owner..."
+                  style="width:220px;"
+                />
+                <select id="adminBizCatFilter" class="filter-select">
+                  <option value="all">All Categories</option>
+                  <option value="Bakery">Bakery</option>
+                  <option value="Desserts">Desserts</option>
+                  <option value="Healthy Bowls">Healthy Bowls</option>
+                  <option value="Cafe & Beverages">Cafe &amp; Beverages</option>
+                  <option value="North Indian">North Indian</option>
+                </select>
+                <select id="adminBizStatusFilter" class="filter-select">
+                  <option value="all">All Statuses</option>
+                  <option value="verified">Verified</option>
+                  <option value="pending">Pending Approval</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Business &amp; Address</th>
+                    <th>Owner</th>
+                    <th>Category</th>
+                    <th>Contact</th>
+                    <th>Registered</th>
+                    <th>Status</th>
+                    <th>Performance</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="adminBusinessesTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 3: CUSTOMERS ==================== -->
+        <section class="dash-section" id="sec-customers">
+          <div class="data-panel">
+            <div class="data-panel-header">
+              <div class="data-panel-title-wrap">
+                <h3 class="data-panel-title">Customer Accounts</h3>
+                <span class="data-panel-count" id="custFilteredCount">Loading...</span>
+              </div>
+              <div class="data-panel-actions">
+                <input
+                  type="text"
+                  id="adminCustSearch"
+                  class="filter-input"
+                  placeholder="Search customer name or email..."
+                  style="width:240px;"
+                />
+                <select id="adminCustStatusFilter" class="filter-select">
+                  <option value="all">All Statuses</option>
+                  <option value="active">Active</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Customer Name &amp; Area</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Join Date</th>
+                    <th>Orders</th>
+                    <th>Total Spent</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="adminCustomersTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 4: LISTINGS ==================== -->
+        <section class="dash-section" id="sec-listings">
+          <div class="data-panel">
+            <div class="data-panel-header">
+              <div class="data-panel-title-wrap">
+                <h3 class="data-panel-title">Surplus Food Listings Oversight</h3>
+                <span class="data-panel-count" id="listingsFilteredCount">Loading...</span>
+              </div>
+              <div class="data-panel-actions">
+                <input
+                  type="text"
+                  id="adminListingSearch"
+                  class="filter-input"
+                  placeholder="Search listing or partner..."
+                  style="width:220px;"
+                />
+                <select id="adminListingCatFilter" class="filter-select">
+                  <option value="all">All Categories</option>
+                  <option value="Bakery">Bakery</option>
+                  <option value="Desserts">Desserts</option>
+                  <option value="Healthy Bowls">Healthy Bowls</option>
+                  <option value="North Indian">North Indian</option>
+                  <option value="Snacks">Snacks</option>
+                </select>
+                <select id="adminListingStatusFilter" class="filter-select">
+                  <option value="all">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="sold_out">Sold Out</option>
+                  <option value="expired">Expired</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Surplus Item</th>
+                    <th>Food Business</th>
+                    <th>Pricing</th>
+                    <th>Stock</th>
+                    <th>Pickup Window</th>
+                    <th>Status</th>
+                    <th>Moderation</th>
+                  </tr>
+                </thead>
+                <tbody id="adminListingsTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 5: ORDERS ==================== -->
+        <section class="dash-section" id="sec-orders">
+          <div class="data-panel">
+            <div class="data-panel-header">
+              <div class="data-panel-title-wrap">
+                <h3 class="data-panel-title">Platform Order Management</h3>
+                <span class="data-panel-count" id="ordersFilteredCount">Loading...</span>
+              </div>
+              <div class="data-panel-actions">
+                <input
+                  type="text"
+                  id="adminOrderSearch"
+                  class="filter-input"
+                  placeholder="Search order ID or customer..."
+                  style="width:220px;"
+                />
+                <select id="adminOrderStatusFilter" class="filter-select">
+                  <option value="all">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="ready">Ready for Pickup</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="data-table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Order Code</th>
+                    <th>Customer</th>
+                    <th>Food Partner</th>
+                    <th>Item Ordered</th>
+                    <th>Qty</th>
+                    <th>Total Amount</th>
+                    <th>Payment Method</th>
+                    <th>Status</th>
+                    <th>Order Time</th>
+                    <th>Details</th>
+                  </tr>
+                </thead>
+                <tbody id="adminOrdersTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 6: REPORTS & ANALYTICS ==================== -->
+        <section class="dash-section" id="sec-analytics">
+          <div class="dash-stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon green">🌍</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value">8,240 kg</div>
+                <div class="dash-stat-label">Total Landfill Waste Avoided</div>
+                <div class="dash-stat-trend">Equal to ~13,700 meals</div>
+              </div>
+            </div>
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon blue">💨</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value">19,776 kg</div>
+                <div class="dash-stat-label">Greenhouse Gas CO2e Prevented</div>
+                <div class="dash-stat-trend">2.4 kg CO2e / kg food</div>
+              </div>
+            </div>
+            <div class="dash-stat-card">
+              <div class="dash-stat-icon amber">💵</div>
+              <div class="dash-stat-info">
+                <div class="dash-stat-value">₹18,40,000</div>
+                <div class="dash-stat-label">Consumer Money Saved</div>
+                <div class="dash-stat-trend">Avg. 63% off retail</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+            <!-- Category Share Breakdown -->
+            <div class="dash-chart-card">
+              <h3 style="font-size:1.15rem; font-weight:800; color:var(--dash-text); margin-bottom:14px;">Surplus Category Distribution</h3>
+              <div id="adminCategoryShare"></div>
+            </div>
+
+            <!-- Top Performing Businesses -->
+            <div class="dash-chart-card">
+              <h3 style="font-size:1.15rem; font-weight:800; color:var(--dash-text); margin-bottom:14px;">Top Food Waste Rescuers</h3>
+              <div style="display:flex; flex-direction:column; gap:12px; font-size:0.9rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid var(--dash-border);">
+                  <div><strong>1. Punjab Heritage Kitchen</strong> · Sector 34</div>
+                  <span class="badge badge-completed">920 kg Saved</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid var(--dash-border);">
+                  <div><strong>2. The Morning Oven Bakery</strong> · Sector 17</div>
+                  <span class="badge badge-completed">812 kg Saved</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:8px; border-bottom:1px solid var(--dash-border);">
+                  <div><strong>3. Green Bowl Kitchen</strong> · Sector 8</div>
+                  <span class="badge badge-completed">640 kg Saved</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div><strong>4. Sweet Crumb Patisserie</strong> · Sector 35</div>
+                  <span class="badge badge-completed">510 kg Saved</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 7: SETTINGS ==================== -->
+        <section class="dash-section" id="sec-settings">
+          <div class="dash-chart-card" style="max-width:700px;">
+            <h3 style="font-size:1.2rem; font-weight:850; color:var(--dash-text); margin-bottom:6px;">Platform Settings</h3>
+            <p style="font-size:0.85rem; color:var(--dash-text-muted); margin-bottom:20px;">Configure global marketplace parameters and policies</p>
+
+            <form onsubmit="alert('Platform settings saved successfully.'); return false;">
+              <div class="form-group">
+                <label class="form-label">Platform Service Commission (%)</label>
+                <input type="number" class="form-input" value="10" min="0" max="30" style="max-width:200px;" />
+                <span style="font-size:0.75rem; color:var(--dash-text-muted);">Standard fee deducted from merchant surplus sales.</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Automated Merchant Verification</label>
+                <select class="form-input" style="max-width:300px;">
+                  <option value="manual" selected>Manual Admin Review Required</option>
+                  <option value="instant">Instant Verification (FSSAI Check)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">System Mode</label>
+                <select class="form-input" style="max-width:300px;">
+                  <option value="live" selected>🟢 Live Production Marketplace</option>
+                  <option value="maintenance">🔴 Maintenance Mode</option>
+                </select>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="margin-top:10px;">Save Configuration ✓</button>
+            </form>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ==================== REUSABLE ADMIN DETAILS MODAL ==================== -->
+  <div class="modal-backdrop" id="adminDetailsModal" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="adminModalTitle">Details</h3>
+        <button class="modal-close" onclick="closeAdminModal()" aria-label="Close dialog">&times;</button>
+      </div>
+      <div class="modal-body" id="adminModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-sm" onclick="closeAdminModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="assets/js/mock-data.js"></script>
+  <script src="assets/js/admin-dashboard.js"></script>
+</body>
+</html>

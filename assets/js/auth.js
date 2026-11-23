@@ -209,11 +209,17 @@ function initLoginForm() {
     submitBtn.textContent = 'Logging in…';
 
     setTimeout(() => {
+      // Determine user role based on email or credentials
+      const lowerEmail = email.toLowerCase();
+      const isAdmin = lowerEmail.includes('admin');
+      const isBusiness = lowerEmail.includes('merchant') || lowerEmail.includes('business') || lowerEmail.includes('restaurant') || lowerEmail.includes('bakery') || lowerEmail.includes('cafe');
+      const role = isAdmin ? 'admin' : (isBusiness ? 'business' : 'customer');
+
       // Create user profile
       const user = {
         name: email.split('@')[0],
         email: email,
-        account_type: 'customer'
+        account_type: role
       };
 
       Auth.saveSession(user);
@@ -224,7 +230,13 @@ function initLoginForm() {
       }
 
       setTimeout(() => {
-        window.location.href = 'index.html';
+        if (isAdmin) {
+          window.location.href = 'admin-dashboard.html';
+        } else if (isBusiness) {
+          window.location.href = 'business-dashboard.html';
+        } else {
+          window.location.href = 'index.html';
+        }
       }, 1000);
     }, 700);
   });
@@ -359,7 +371,11 @@ function initSignupForm() {
       }
 
       setTimeout(() => {
-        window.location.href = 'index.html';
+        if (selectedAccountType === 'business') {
+          window.location.href = 'business-dashboard.html';
+        } else {
+          window.location.href = 'index.html';
+        }
       }, 1200);
     }, 800);
   });
