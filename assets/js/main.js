@@ -3,153 +3,9 @@
  * Interactive Frontend Client Script
  */
 
-// Mock Surplus Food Data
-const SURPLUS_INVENTORY = [
-  {
-    id: "plnt-101",
-    title: "Artisan Bakery Surprise Box",
-    store: "The Morning Oven Bakery",
-    address: "Sector 17-C, Chandigarh",
-    distance: "1.2 km away",
-    category: "bakery",
-    rating: "4.9",
-    reviewsCount: 142,
-    originalPrice: 420,
-    discountedPrice: 149,
-    discountPercent: 65,
-    remainingQty: 3,
-    pickupWindow: "7:30 PM – 9:00 PM",
-    description: "Contains a delightful mix of freshly baked butter croissants, pain au chocolat, sourdough slices, and artisanal rolls baked this morning.",
-    badge: "🔥 Selling Fast",
-    image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=700&q=80"
-  },
-  {
-    id: "plnt-102",
-    title: "Gourmet Dessert & Pastry Box",
-    store: "Sweet Crumb Patisserie",
-    address: "Sector 35-B, Chandigarh",
-    distance: "2.4 km away",
-    category: "desserts",
-    rating: "4.8",
-    reviewsCount: 98,
-    originalPrice: 380,
-    discountedPrice: 139,
-    discountPercent: 63,
-    remainingQty: 2,
-    pickupWindow: "8:00 PM – 9:30 PM",
-    description: "Assortment of chef-special Belgian chocolate mousse cups, blueberry tartlets, and Parisian almond macarons.",
-    badge: "⭐ Top Rated",
-    image: "https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=700&q=80"
-  },
-  {
-    id: "plnt-103",
-    title: "Fresh Harvest Salad & Wrap Combo",
-    store: "Green Bowl Kitchen",
-    address: "Sector 8-C, Inner Market, Chandigarh",
-    distance: "1.8 km away",
-    category: "meals",
-    rating: "4.7",
-    reviewsCount: 86,
-    originalPrice: 320,
-    discountedPrice: 119,
-    discountPercent: 62,
-    remainingQty: 5,
-    pickupWindow: "8:30 PM – 10:00 PM",
-    description: "Nutritious grilled paneer crunch bowl with quinoa, avocado dressing, and a wholesome Mediterranean multigrain wrap.",
-    badge: "🌱 Wholesome",
-    image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=700&q=80"
-  },
-  {
-    id: "plnt-104",
-    title: "Artisan Cold Brew & Muffin Pack",
-    store: "Brew & Bean Specialty Cafe",
-    address: "Sector 22-D, Chandigarh",
-    distance: "0.9 km away",
-    category: "beverages",
-    rating: "4.9",
-    reviewsCount: 110,
-    originalPrice: 280,
-    discountedPrice: 99,
-    discountPercent: 65,
-    remainingQty: 4,
-    pickupWindow: "7:00 PM – 8:30 PM",
-    description: "Single-origin 16-hour steeped cold brew coffee bottle paired with freshly baked double chocolate chunk muffin.",
-    badge: "☕ Best Deal",
-    image: "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=700&q=80"
-  },
-  {
-    id: "plnt-105",
-    title: "Woodfired Focaccia & Pasta Bowl",
-    store: "Little Italy Trattoria",
-    address: "Sector 26, Madhya Marg, Chandigarh",
-    distance: "3.1 km away",
-    category: "meals",
-    rating: "4.8",
-    reviewsCount: 164,
-    originalPrice: 480,
-    discountedPrice: 179,
-    discountPercent: 63,
-    remainingQty: 3,
-    pickupWindow: "9:00 PM – 10:30 PM",
-    description: "Herbed rosemary sea-salt focaccia bread alongside a hearty portion of penne arrabbiata prepared fresh for dinner.",
-    badge: "🍕 Chef Special",
-    image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=700&q=80"
-  },
-  {
-    id: "plnt-106",
-    title: "Evening Chai & Savory Samosa Box",
-    store: "Chai Tapri & Co.",
-    address: "Sector 15, Panjab University Market",
-    distance: "2.1 km away",
-    category: "snacks",
-    rating: "4.7",
-    reviewsCount: 79,
-    originalPrice: 210,
-    discountedPrice: 79,
-    discountPercent: 62,
-    remainingQty: 6,
-    pickupWindow: "6:30 PM – 8:00 PM",
-    description: "Golden crispy Punjabi aloo samosas served with tangy tamarind chutney, mint dip, and sweet tea accompaniments.",
-    badge: "⚡ Great Value",
-    image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=700&q=80"
-  },
-  {
-    id: "plnt-107",
-    title: "Royal North-Indian Thali Mystery Box",
-    store: "Punjab Heritage Kitchen",
-    address: "Sector 34, Chandigarh",
-    distance: "2.8 km away",
-    category: "meals",
-    rating: "4.9",
-    reviewsCount: 220,
-    originalPrice: 390,
-    discountedPrice: 159,
-    discountPercent: 59,
-    remainingQty: 4,
-    pickupWindow: "8:45 PM – 10:15 PM",
-    description: "Generous dinner box featuring Dal Makhani, Paneer Butter Masala, aromatic Jeera Rice, and soft butter rotis.",
-    badge: "🍛 Hearty Meal",
-    image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=700&q=80"
-  },
-  {
-    id: "plnt-108",
-    title: "Belgian Waffle & Churro Assortment",
-    store: "The Urban Waffle House",
-    address: "Sector 9, Inner Market, Chandigarh",
-    distance: "1.6 km away",
-    category: "desserts",
-    rating: "4.8",
-    reviewsCount: 135,
-    originalPrice: 340,
-    discountedPrice: 129,
-    discountPercent: 62,
-    remainingQty: 2,
-    pickupWindow: "7:15 PM – 9:00 PM",
-    description: "Crispy golden Belgian waffle quarter with Nutella drizzle and warm cinnamon sugar coated Spanish churros.",
-    badge: "🧇 Sweet Treat",
-    image: "https://images.unsplash.com/photo-1562376552-0d160a2f238d?auto=format&fit=crop&w=700&q=80"
-  }
-];
+// Dynamic Surplus Inventory loaded live from MongoDB
+let SURPLUS_INVENTORY = [];
+let isLoadingInventory = true;
 
 // App State
 let currentCategory = "all";
@@ -286,12 +142,25 @@ function initMarketplace() {
     });
   }
 
-  // Initial render
-  renderFoodGrid();
+  // Initial load from live MongoDB backend
+  fetchLiveSurplusInventory();
+}
 
-  // Fetch live surplus listings from MongoDB backend if online
+function fetchLiveSurplusInventory() {
+  const grid = document.getElementById("marketplaceFoodGrid");
+  if (grid && SURPLUS_INVENTORY.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column: 1 / -1; padding: 48px 20px; text-align: center;">
+        <div class="empty-state-icon" style="font-size: 2.2rem; margin-bottom: 12px;">⏳</div>
+        <div class="empty-state-title" style="font-size: 1.2rem; font-weight: 700; margin-bottom: 6px;">Loading Surplus Food...</div>
+        <div class="empty-state-text" style="color: var(--color-text-muted); font-size: 0.9rem;">Connecting to Plenti live database.</div>
+      </div>
+    `;
+  }
+
   if (window.PlentiAPI) {
     PlentiAPI.listings.getAll().then(res => {
+      isLoadingInventory = false;
       if (res && res.data && res.data.length > 0) {
         SURPLUS_INVENTORY = res.data.map(item => ({
           id: item._id,
@@ -311,9 +180,18 @@ function initMarketplace() {
           badge: item.quantity <= 2 ? '🔥 Selling Fast' : '🌱 Rescued Today',
           image: item.image
         }));
-        renderFoodGrid();
+      } else {
+        SURPLUS_INVENTORY = [];
       }
-    }).catch(() => {});
+      renderFoodGrid();
+    }).catch(err => {
+      isLoadingInventory = false;
+      console.warn('[Plenti] MongoDB fetch notice:', err.message);
+      renderFoodGrid();
+    });
+  } else {
+    isLoadingInventory = false;
+    renderFoodGrid();
   }
 }
 
@@ -344,10 +222,14 @@ function renderFoodGrid() {
   // Render cards
   if (filtered.length === 0) {
     grid.innerHTML = `
-      <div class="empty-state" style="grid-column: 1 / -1;">
-        <div class="empty-state-icon">🔍</div>
-        <div class="empty-state-title">No surplus food found</div>
-        <div class="empty-state-text">Try adjusting your search terms or selecting another category above.</div>
+      <div class="empty-state" style="grid-column: 1 / -1; padding: 50px 20px; text-align: center; background: #FFFFFF; border-radius: 16px; border: 1px dashed var(--color-border);">
+        <div class="empty-state-icon" style="font-size: 2.5rem; margin-bottom: 12px;">🧺</div>
+        <div class="empty-state-title" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">No surplus food items found</div>
+        <div class="empty-state-text" style="color: var(--color-text-muted); font-size: 0.9rem; max-width: 480px; margin: 0 auto; line-height: 1.5;">
+          ${currentSearch || currentCategory !== 'all' 
+            ? 'No surplus meals match your current filter. Try selecting another category or clearing search.' 
+            : 'No surplus food published right now. Make sure your backend server is running with <code>npm run dev</code> to serve MongoDB listings!'}
+        </div>
       </div>
     `;
     return;
