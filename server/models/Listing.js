@@ -66,7 +66,7 @@ const ListingSchema = new mongoose.Schema(
 );
 
 // Auto calculate discount percentage
-ListingSchema.pre('save', function (next) {
+ListingSchema.pre('save', function () {
   if (this.originalPrice > 0 && this.discountedPrice >= 0) {
     this.discountPercentage = Math.round(
       ((this.originalPrice - this.discountedPrice) / this.originalPrice) * 100
@@ -75,7 +75,6 @@ ListingSchema.pre('save', function (next) {
   if (this.quantity <= 0) {
     this.status = 'sold_out';
   }
-  next();
 });
 
 module.exports = mongoose.model('Listing', ListingSchema);
