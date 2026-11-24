@@ -54,7 +54,6 @@ Or simply open `index.html`, `business-dashboard.html`, or `admin-dashboard.html
 
 | Role | Email | Password |
 | :--- | :--- | :--- |
-| **Platform Admin** | `admin@plenti.com` | `password123` |
 | **Merchant (Artisan Bakery)** | `pierre@artisanbakery.com` | `password123` |
 | **Merchant (Green Leaf Cafe)** | `ananya@greenleafcafe.com` | `password123` |
 | **Customer** | `rohan@example.com` | `password123` |
