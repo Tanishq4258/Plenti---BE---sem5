@@ -5,10 +5,12 @@ const {
   getMyOrders,
   getStoreOrders,
   updateOrderStatus,
-  verifyPickupCode
+  verifyPickupCode,
+  getAllOrders
 } = require('../controllers/orderController');
 const { protect, authorize } = require('../middleware/auth');
 
+router.get('/', protect, authorize('admin'), getAllOrders);
 router.post('/', protect, createOrder);
 router.get('/my-orders', protect, getMyOrders);
 router.get('/store-orders', protect, authorize('business', 'admin'), getStoreOrders);

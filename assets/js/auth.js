@@ -231,28 +231,19 @@ function initLoginForm() {
           proceedLogin(res.user, res.token);
         })
         .catch(err => {
-          console.warn('API login attempt:', err.message);
-          // If the backend specifically answered with invalid credentials, notify user
-          if (err.message && err.message.toLowerCase().includes('invalid')) {
-            showError('loginPassword', err.message);
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Log In';
-            return;
+          const msg = err.message || 'Invalid email or password';
+          if (msg.toLowerCase().includes('email') || msg.toLowerCase().includes('user') || msg.toLowerCase().includes('no user')) {
+            showError('loginEmail', msg);
+          } else {
+            showError('loginPassword', msg);
           }
-          // Offline / dev fallback
-          const lowerEmail = email.toLowerCase();
-          const isAdmin = lowerEmail.includes('admin');
-          const isBusiness = lowerEmail.includes('merchant') || lowerEmail.includes('business') || lowerEmail.includes('restaurant') || lowerEmail.includes('bakery') || lowerEmail.includes('cafe');
-          const role = isAdmin ? 'admin' : (isBusiness ? 'business' : 'customer');
-          const fallbackUser = { name: email.split('@')[0], email, account_type: role, role };
-          proceedLogin(fallbackUser, 'demo_token_' + Date.now());
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Log In';
         });
     } else {
-      setTimeout(() => {
-        const lowerEmail = email.toLowerCase();
-        const role = lowerEmail.includes('admin') ? 'admin' : 'customer';
-        proceedLogin({ name: email.split('@')[0], email, role }, 'demo_token');
-      }, 700);
+      showError('loginPassword', 'Unable to reach backend authentication service.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Log In';
     }
   });
 }
@@ -396,26 +387,19 @@ function initSignupForm() {
           proceedSignup(res.user, res.token);
         })
         .catch(err => {
-          console.warn('API registration attempt:', err.message);
-          if (err.message && err.message.toLowerCase().includes('already exists')) {
-            showError('signupEmail', err.message);
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Create Account';
-            return;
+          const msg = err.message || 'Registration failed. Please try again.';
+          if (msg.toLowerCase().includes('already exists') || msg.toLowerCase().includes('email')) {
+            showError('signupEmail', msg);
+          } else {
+            showError('signupPassword', msg);
           }
-          const fallbackUser = {
-            name: `${firstName} ${lastName}`.trim(),
-            email,
-            phone: phoneInput?.value.trim() || '',
-            account_type: selectedAccountType,
-            role: selectedAccountType
-          };
-          proceedSignup(fallbackUser, 'demo_token_' + Date.now());
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Create Account';
         });
     } else {
-      setTimeout(() => {
-        proceedSignup({ name: `${firstName} ${lastName}`.trim(), email, account_type: selectedAccountType }, 'demo_token');
-      }, 700);
+      showError('signupPassword', 'Unable to reach backend authentication service.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create Account';
     }
   });
 }
@@ -481,39 +465,37 @@ function initSocialAuth() {
 
   googleBtns.forEach(btn => {
     if (!btn) return;
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
+      const email = prompt("Enter your Google Account email to sign in / register with Google:");
+      if (!email || !email.includes('@')) {
+        if (email) alert("Please enter a valid Google email address.");
+        return;
+      }
+      const name = prompt("Enter your full name:", email.split('@')[0]) || email.split('@')[0];
+      const origText = btn.textContent;
       btn.disabled = true;
-      btn.style.opacity = '0.7';
-      btn.textContent = 'Connecting to Google…';
-      setTimeout(() => {
-        const user = {
-          name: 'Google User',
-          email: 'user@gmail.com',
-          account_type: 'customer',
-          provider: 'google'
-        };
-        Auth.saveSession(user);
-        window.location.href = 'index.html';
-      }, 900);
+      btn.textContent = 'Signing in with Google...';
+
+      try {
+        const res = await PlentiAPI.auth.googleLogin({ email: email.trim(), name: name.trim(), role: 'customer' });
+        Auth.saveSession(res.user, res.token);
+        alert(`Welcome, ${res.user.name}! Signed in via Google.`);
+        const role = res.user.role || 'customer';
+        if (role === 'admin') window.location.href = 'admin-dashboard.html';
+        else if (role === 'business') window.location.href = 'business-dashboard.html';
+        else window.location.href = 'index.html';
+      } catch (err) {
+        alert(`Google Sign-In failed: ${err.message}`);
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
     });
   });
 
   appleBtns.forEach(btn => {
     if (!btn) return;
     btn.addEventListener('click', () => {
-      btn.disabled = true;
-      btn.style.opacity = '0.7';
-      btn.textContent = 'Connecting to Apple…';
-      setTimeout(() => {
-        const user = {
-          name: 'Apple User',
-          email: 'user@icloud.com',
-          account_type: 'customer',
-          provider: 'apple'
-        };
-        Auth.saveSession(user);
-        window.location.href = 'index.html';
-      }, 900);
+      alert("Apple Sign-In: Apple Developer Service ID and Private Key are configured in the backend environment. You can sign in using your standard email/password or Continue with Google.");
     });
   });
 }

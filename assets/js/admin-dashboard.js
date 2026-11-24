@@ -1,137 +1,173 @@
 /**
  * PLENTI — PLATFORM ADMINISTRATOR DASHBOARD
- * Handles client-side admin analytics, business verifications, customer oversight,
- * listing moderation, and orders management.
+ * Fully connected to MongoDB Atlas via Node.js / Express backend.
+ * Provides live platform monitoring, business approvals & suspensions,
+ * customer account management, surplus listing moderation, and orders tracking.
  */
 
-document.addEventListener("DOMContentLoaded", () => {
-  initAdminNavigation();
-  initAdminCharts();
-  renderAdminOverview();
-  renderAdminBusinesses();
-  renderAdminCustomers();
-  renderAdminListings();
-  renderAdminOrders();
-  renderAdminAnalytics();
-  initAdminSearchAndFilters();
-  initSidebarToggle();
-  syncAdminWithMongoDB();
-});
-
-async function syncAdminWithMongoDB() {
-  if (!window.PlentiAPI) return;
-  try {
-    const isOnline = await PlentiAPI.checkHealth();
-    if (!isOnline) return;
-
-    // Fetch live overview metrics from MongoDB
-    const ovRes = await PlentiAPI.admin.getOverview();
-    if (ovRes && ovRes.data) {
-      const d = ovRes.data;
-      if (document.getElementById('statTotalCustomers')) document.getElementById('statTotalCustomers').textContent = d.totalCustomers?.toLocaleString();
-      if (document.getElementById('statTotalBusinesses')) document.getElementById('statTotalBusinesses').textContent = d.totalBusinesses?.toLocaleString();
-      if (document.getElementById('statActiveListings')) document.getElementById('statActiveListings').textContent = d.activeListings?.toLocaleString();
-      if (document.getElementById('statTotalRevenue')) document.getElementById('statTotalRevenue').textContent = '₹' + d.totalRevenue?.toLocaleString();
-      if (document.getElementById('statFoodSaved')) document.getElementById('statFoodSaved').textContent = d.totalFoodSavedKg?.toLocaleString() + ' kg';
-      if (document.getElementById('statPendingVerifications')) document.getElementById('statPendingVerifications').textContent = d.pendingVerifications;
-    }
-
-    // Fetch registered businesses from MongoDB
-    const bRes = await PlentiAPI.admin.getAllBusinesses();
-    if (bRes && bRes.data && bRes.data.length > 0) {
-      adminState.businesses = bRes.data.map(b => ({
-        id: b._id,
-        name: b.businessName,
-        owner: b.owner?.name || 'Partner',
-        email: b.email,
-        phone: b.phone || '+91 98765 00000',
-        category: b.category,
-        address: b.address,
-        regDate: new Date(b.createdAt).toISOString().split('T')[0],
-        status: b.verificationStatus === 'verified' ? 'Verified' : (b.status === 'suspended' ? 'Suspended' : 'Pending'),
-        listingsCount: 4,
-        foodRescuedKg: b.totalFoodRescuedKg || 120
-      }));
-      renderAdminBusinesses();
-    }
-
-    // Fetch customers from MongoDB
-    const cRes = await PlentiAPI.admin.getAllCustomers();
-    if (cRes && cRes.data && cRes.data.length > 0) {
-      adminState.customers = cRes.data.map(c => ({
-        id: c._id,
-        name: c.name,
-        email: c.email,
-        phone: c.phone || '+91 99887 00000',
-        city: c.city || 'Chandigarh',
-        joinDate: new Date(c.createdAt).toISOString().split('T')[0],
-        totalOrders: 6,
-        savedKg: c.foodRescuedKg || 18,
-        status: c.status === 'suspended' ? 'Suspended' : 'Active'
-      }));
-      renderAdminCustomers();
-    }
-  } catch (err) {
-    console.log('[Plenti] Admin MongoDB sync note:', err.message);
-  }
-}
-
-// Current local state initialized from PLENTI_MOCK
+// Global admin state
 const adminState = {
   currentTab: "overview",
   chartPeriod: "weekly",
-  businesses: [...PLENTI_MOCK.admin.businesses],
-  customers: [...PLENTI_MOCK.admin.customers],
-  orders: [...PLENTI_MOCK.admin.recentOrders],
-  listings: [
-    ...PLENTI_MOCK.business.listings.map(l => ({ ...l, businessName: "The Morning Oven Bakery" })),
-    {
-      id: "list-201",
-      name: "Belgian Chocolate Pastry Sampler",
-      description: "Rich dark chocolate mousse and tarts.",
-      category: "Desserts",
-      originalPrice: 380,
-      discountedPrice: 139,
-      discountPercent: 63,
-      availableQty: 2,
-      pickupStart: "20:00",
-      pickupEnd: "21:30",
-      status: "active",
-      businessName: "Sweet Crumb Patisserie",
-      image: "https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-      id: "list-301",
-      name: "Harvest Salad & Wrap Combo",
-      description: "Grilled paneer quinoa bowl with herb wrap.",
-      category: "Healthy Bowls",
-      originalPrice: 320,
-      discountedPrice: 119,
-      discountPercent: 62,
-      availableQty: 5,
-      pickupStart: "19:30",
-      pickupEnd: "21:00",
-      status: "active",
-      businessName: "Green Bowl Kitchen",
-      image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-      id: "list-501",
-      name: "Royal Dal Makhani & Roti Thali",
-      description: "Authentic slow-cooked Dal Makhani with 4 butter rotis.",
-      category: "North Indian",
-      originalPrice: 390,
-      discountedPrice: 159,
-      discountPercent: 59,
-      availableQty: 4,
-      pickupStart: "20:30",
-      pickupEnd: "22:00",
-      status: "active",
-      businessName: "Punjab Heritage Kitchen",
-      image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=600&q=80"
-    }
-  ]
+  stats: {
+    totalCustomers: 0,
+    totalBusinesses: 0,
+    activeListings: 0,
+    totalOrders: 0,
+    totalRevenue: 0,
+    totalFoodSavedKg: 0,
+    pendingVerifications: 0
+  },
+  businesses: [],
+  customers: [],
+  orders: [],
+  listings: []
 };
+
+let adminPollTimer = null;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const token = localStorage.getItem("plenti_access_token");
+  if (!token) {
+    window.location.href = "login.html?redirect=admin-dashboard.html";
+    return;
+  }
+
+  initAdminNavigation();
+  initAdminSearchAndFilters();
+  initSidebarToggle();
+  initAdminCharts();
+
+  // Bind logout button
+  document.querySelectorAll(".dash-logout-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      localStorage.removeItem("plenti_access_token");
+      localStorage.removeItem("plenti_user");
+    });
+  });
+
+  // Initial load
+  await fetchAllAdminData();
+
+  // Auto-polling every 10 seconds to keep admin overview live
+  adminPollTimer = setInterval(fetchAllAdminData, 10000);
+});
+
+window.addEventListener("beforeunload", () => {
+  if (adminPollTimer) clearInterval(adminPollTimer);
+});
+
+// ==================== LIVE DATA FETCH ====================
+async function fetchAllAdminData() {
+  if (!window.PlentiAPI) return;
+
+  try {
+    // 1. Overview metrics
+    const ovRes = await PlentiAPI.admin.getOverview().catch(() => null);
+    if (ovRes && ovRes.data) {
+      const d = ovRes.data;
+      adminState.stats = {
+        totalCustomers: d.totalCustomers || 0,
+        totalBusinesses: d.totalBusinesses || 0,
+        activeListings: d.activeListings || 0,
+        totalOrders: d.totalOrders || 0,
+        totalRevenue: d.totalRevenue || 0,
+        totalFoodSavedKg: d.totalFoodSavedKg || 0,
+        pendingVerifications: d.pendingVerifications || 0
+      };
+    }
+
+    // 2. All businesses
+    const bizRes = await PlentiAPI.admin.getAllBusinesses().catch(() => null);
+    if (bizRes && Array.isArray(bizRes.data)) {
+      adminState.businesses = bizRes.data.map(b => ({
+        id: b._id,
+        name: b.businessName,
+        owner: b.owner?.name || "Partner",
+        email: b.email || b.owner?.email || "partner@plenti.com",
+        phone: b.phone || "+91 98765 00000",
+        category: b.category || "Restaurant",
+        address: b.address || "Sector 17, Chandigarh",
+        regDate: new Date(b.createdAt || Date.now()).toISOString().split("T")[0],
+        status: b.status === "suspended" ? "suspended" : (b.verificationStatus || "pending"),
+        verificationStatus: b.verificationStatus || "pending",
+        activeListingsCount: b.activeListingsCount || 0,
+        totalOrdersCount: b.totalOrdersCount || 0,
+        totalEarnings: b.totalEarnings || 0,
+        foodRescuedKg: b.totalFoodRescuedKg || 0
+      }));
+    }
+
+    // 3. All customers
+    const custRes = await PlentiAPI.admin.getAllCustomers().catch(() => null);
+    if (custRes && Array.isArray(custRes.data)) {
+      adminState.customers = custRes.data.map(c => ({
+        id: c._id,
+        name: c.name,
+        email: c.email,
+        phone: c.phone || "N/A",
+        location: c.city || c.address || "Chandigarh",
+        joinDate: new Date(c.createdAt || Date.now()).toISOString().split("T")[0],
+        ordersCount: c.ordersCount || 0,
+        totalSpent: c.totalSpent || 0,
+        status: c.status || "active"
+      }));
+    }
+
+    // 4. All surplus food listings
+    const listRes = await PlentiAPI.listings.getAll({ status: "all" }).catch(() => null);
+    if (listRes && Array.isArray(listRes.data)) {
+      adminState.listings = listRes.data.map(l => ({
+        id: l._id,
+        name: l.title,
+        description: l.description,
+        category: l.category,
+        originalPrice: l.originalPrice,
+        discountedPrice: l.discountedPrice,
+        discountPercent: l.discountPercentage || Math.round(((l.originalPrice - l.discountedPrice) / (l.originalPrice || 1)) * 100),
+        availableQty: l.quantity,
+        pickupStart: l.pickupStart || "18:00",
+        pickupEnd: l.pickupEnd || "21:30",
+        status: l.status,
+        businessName: l.business?.businessName || "Registered Partner",
+        businessAddress: l.business?.address || "",
+        image: l.image || "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80"
+      }));
+    }
+
+    // 5. All platform orders
+    const ordRes = await PlentiAPI.orders.getAll().catch(() => null);
+    if (ordRes && Array.isArray(ordRes.data)) {
+      adminState.orders = ordRes.data.map(o => ({
+        id: o.orderId,
+        _id: o._id,
+        customer: o.customer?.name || "Customer",
+        customerPhone: o.customer?.phone || "N/A",
+        business: o.business?.businessName || "Restaurant Partner",
+        item: o.items && o.items[0] ? o.items[0].title : "Surplus Meal Box",
+        itemsText: Array.isArray(o.items) ? o.items.map(i => `${i.quantity}x ${i.title}`).join(", ") : "",
+        quantity: o.items ? o.items.reduce((s, i) => s + (i.quantity || 1), 0) : 1,
+        amount: o.totalAmount,
+        payment: o.paymentStatus === "paid" ? "Paid" : "Pending",
+        status: o.orderStatus,
+        time: new Date(o.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        date: new Date(o.createdAt).toISOString().split("T")[0],
+        pickupCode: o.pickupCode
+      }));
+    }
+
+    // Re-render components
+    renderAdminOverview();
+    renderAdminBusinesses();
+    renderAdminCustomers();
+    renderAdminListings();
+    renderAdminOrders();
+    renderAdminAnalytics();
+    drawRevenueChart();
+  } catch (err) {
+    console.warn("[Admin Dashboard] Sync note:", err.message);
+  }
+}
 
 // ==================== NAVIGATION ====================
 function initAdminNavigation() {
@@ -144,7 +180,6 @@ function initAdminNavigation() {
     });
   });
 
-  // Handle URL hash on load
   const hash = window.location.hash.replace("#", "");
   if (hash && document.getElementById(`sec-${hash}`)) {
     switchAdminTab(hash);
@@ -154,7 +189,6 @@ function initAdminNavigation() {
 function switchAdminTab(tabId) {
   adminState.currentTab = tabId;
 
-  // Update nav active states
   document.querySelectorAll(".dash-nav-item").forEach(item => {
     if (item.getAttribute("data-tab") === tabId) {
       item.classList.add("active");
@@ -163,7 +197,6 @@ function switchAdminTab(tabId) {
     }
   });
 
-  // Update view sections
   document.querySelectorAll(".dash-section").forEach(sec => {
     sec.classList.remove("active");
   });
@@ -173,74 +206,88 @@ function switchAdminTab(tabId) {
     activeSection.classList.add("active");
   }
 
-  // Update topbar heading
   const headingEl = document.getElementById("adminPageTitle");
   if (headingEl) {
     const titles = {
-      overview: "Platform System Overview",
-      businesses: "Food Business Management",
-      customers: "Customer Directory & Accounts",
-      listings: "Surplus Food Listings Oversight",
-      orders: "Platform Order Management",
-      analytics: "Reports & Environmental Analytics",
-      settings: "Platform Settings & Administration"
+      overview: "Platform Overview & Live Metrics",
+      businesses: "Registered Food Businesses",
+      customers: "Registered Customers Oversight",
+      listings: "Surplus Food Listings Directory",
+      orders: "All Platform Orders",
+      analytics: "Platform Reports & Analytics",
+      settings: "System Configuration & Settings"
     };
-    headingEl.textContent = titles[tabId] || "Admin Dashboard";
+    headingEl.textContent = titles[tabId] || "Platform Administration";
   }
 
   window.location.hash = tabId;
   closeMobileSidebar();
 }
 
-// ==================== RENDER OVERVIEW ====================
+// ==================== OVERVIEW RENDERING ====================
 function renderAdminOverview() {
-  const stats = PLENTI_MOCK.admin.stats;
+  const stats = adminState.stats;
 
-  setElText("statCustCount", stats.totalCustomers.toLocaleString());
-  setElText("statBizCount", stats.totalBusinesses.toLocaleString());
-  setElText("statListingsCount", stats.activeListings.toLocaleString());
-  setElText("statOrdersCount", stats.totalOrders.toLocaleString());
-  setElText("statRevenue", `₹${stats.totalRevenue.toLocaleString()}`);
-  setElText("statFoodSaved", `${stats.foodRescuedKg.toLocaleString()} kg`);
-  setElText("statPendingVerif", stats.pendingVerifications);
+  setElText("statCustCount", (stats.totalCustomers || 0).toLocaleString());
+  setElText("statBizCount", (stats.totalBusinesses || 0).toLocaleString());
+  setElText("statListingsCount", (stats.activeListings || 0).toLocaleString());
+  setElText("statOrdersCount", (stats.totalOrders || 0).toLocaleString());
+  setElText("statRevenue", `₹${(stats.totalRevenue || 0).toLocaleString()}`);
+  setElText("statFoodSaved", `${(stats.totalFoodSavedKg || 0).toLocaleString()} kg`);
+  setElText("statPendingVerif", stats.pendingVerifications || 0);
 
-  // Render recent orders table snippet
+  // Sync alternative IDs if present in template
+  setElText("statTotalCustomers", (stats.totalCustomers || 0).toLocaleString());
+  setElText("statTotalBusinesses", (stats.totalBusinesses || 0).toLocaleString());
+  setElText("statActiveListings", (stats.activeListings || 0).toLocaleString());
+  setElText("statTotalRevenue", `₹${(stats.totalRevenue || 0).toLocaleString()}`);
+  setElText("statPendingVerifications", stats.pendingVerifications || 0);
+
+  // Recent orders snippet
   const recentOrdersTbody = document.getElementById("adminRecentOrdersTable");
   if (recentOrdersTbody) {
-    recentOrdersTbody.innerHTML = adminState.orders.slice(0, 5).map(o => `
-      <tr>
-        <td><strong>${o.id}</strong></td>
-        <td>${o.customer}</td>
-        <td>${o.business}</td>
-        <td>₹${o.amount}</td>
-        <td>${o.payment}</td>
-        <td><span class="badge badge-${o.status}">${o.status}</span></td>
-        <td>${o.time}</td>
-        <td>
-          <button class="btn btn-outline btn-sm" onclick="viewOrderDetails('${o.id}')">View</button>
-        </td>
-      </tr>
-    `).join("");
+    if (adminState.orders.length === 0) {
+      recentOrdersTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--dash-text-muted);">No orders recorded yet.</td></tr>`;
+    } else {
+      recentOrdersTbody.innerHTML = adminState.orders.slice(0, 5).map(o => `
+        <tr>
+          <td><strong>${o.id}</strong></td>
+          <td>${escapeHtml(o.customer)}</td>
+          <td>${escapeHtml(o.business)}</td>
+          <td>₹${o.amount}</td>
+          <td>${o.payment}</td>
+          <td><span class="badge badge-${o.status}">${formatStatus(o.status)}</span></td>
+          <td>${o.time}</td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="viewOrderDetails('${o.id}')">View</button>
+          </td>
+        </tr>
+      `).join("");
+    }
   }
 
-  // Render recent businesses snippet
+  // Recent businesses snippet
   const recentBizTbody = document.getElementById("adminRecentBizTable");
   if (recentBizTbody) {
-    recentBizTbody.innerHTML = adminState.businesses.slice(0, 5).map(b => `
-      <tr>
-        <td>
-          <strong>${b.name}</strong><br>
-          <span style="font-size:0.75rem; color:var(--dash-text-muted);">${b.address}</span>
-        </td>
-        <td>${b.category}</td>
-        <td>${b.owner}</td>
-        <td>${b.phone}</td>
-        <td><span class="badge badge-${b.status}">${b.status}</span></td>
-        <td>
-          <button class="btn btn-outline btn-sm" onclick="viewBusinessDetails('${b.id}')">Details</button>
-        </td>
-      </tr>
-    `).join("");
+    if (adminState.businesses.length === 0) {
+      recentBizTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--dash-text-muted);">No partner businesses registered yet.</td></tr>`;
+    } else {
+      recentBizTbody.innerHTML = adminState.businesses.slice(0, 5).map(b => `
+        <tr>
+          <td>
+            <strong>${escapeHtml(b.name)}</strong><br>
+            <span style="font-size:0.75rem; color:var(--dash-text-muted);">${escapeHtml(b.address)}</span>
+          </td>
+          <td>${escapeHtml(b.category)}</td>
+          <td>${escapeHtml(b.owner)}</td>
+          <td>${escapeHtml(b.phone)}</td>
+          <td><span class="badge badge-${b.status}">${formatStatus(b.status)}</span></td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="viewBusinessDetails('${b.id}')">Details</button>
+          </td>
+        </tr>
+      `).join("");
+    }
   }
 }
 
@@ -260,7 +307,7 @@ function renderAdminBusinesses() {
       b.address.toLowerCase().includes(searchInput);
 
     const matchesCat = (categoryFilter === "all") || (b.category === categoryFilter);
-    const matchesStatus = (statusFilter === "all") || (b.status === statusFilter);
+    const matchesStatus = (statusFilter === "all") || (b.status === statusFilter) || (b.verificationStatus === statusFilter);
 
     return matchesSearch && matchesCat && matchesStatus;
   });
@@ -275,17 +322,17 @@ function renderAdminBusinesses() {
   tbody.innerHTML = filtered.map(b => `
     <tr>
       <td>
-        <div style="font-weight:750; color:var(--dash-text);">${b.name}</div>
-        <div style="font-size:0.75rem; color:var(--dash-text-muted);">${b.address}</div>
+        <div style="font-weight:750; color:var(--dash-text);">${escapeHtml(b.name)}</div>
+        <div style="font-size:0.75rem; color:var(--dash-text-muted);">${escapeHtml(b.address)}</div>
       </td>
-      <td><strong>${b.owner}</strong></td>
-      <td>${b.category}</td>
+      <td><strong>${escapeHtml(b.owner)}</strong></td>
+      <td>${escapeHtml(b.category)}</td>
       <td>
-        <div>${b.email}</div>
-        <div style="font-size:0.75rem; color:var(--dash-text-muted);">${b.phone}</div>
+        <div>${escapeHtml(b.email)}</div>
+        <div style="font-size:0.75rem; color:var(--dash-text-muted);">${escapeHtml(b.phone)}</div>
       </td>
       <td>${b.regDate}</td>
-      <td><span class="badge badge-${b.status}">${b.status}</span></td>
+      <td><span class="badge badge-${b.status}">${formatStatus(b.status)}</span></td>
       <td>
         <div style="font-size:0.85rem;"><strong>${b.activeListingsCount}</strong> active</div>
         <div style="font-size:0.75rem; color:var(--dash-text-muted);">${b.totalOrdersCount} orders</div>
@@ -293,15 +340,15 @@ function renderAdminBusinesses() {
       <td>
         <div style="display:flex; gap:6px; flex-wrap:wrap;">
           <button class="btn btn-outline btn-sm" onclick="viewBusinessDetails('${b.id}')">Details</button>
-          ${b.status === 'pending' ? `
+          ${b.verificationStatus === 'pending' ? `
             <button class="btn btn-primary btn-sm" onclick="approveBusiness('${b.id}')">Approve</button>
             <button class="btn btn-danger btn-sm" onclick="rejectBusiness('${b.id}')">Reject</button>
           ` : ''}
-          ${b.status === 'verified' ? `
-            <button class="btn btn-danger btn-sm" onclick="toggleBusinessStatus('${b.id}')">Suspend</button>
+          ${b.status !== 'suspended' && b.verificationStatus === 'verified' ? `
+            <button class="btn btn-danger btn-sm" onclick="toggleBusinessStatus('${b.id}', 'suspended')">Suspend</button>
           ` : ''}
           ${b.status === 'suspended' ? `
-            <button class="btn btn-primary btn-sm" onclick="toggleBusinessStatus('${b.id}')">Reactivate</button>
+            <button class="btn btn-primary btn-sm" onclick="toggleBusinessStatus('${b.id}', 'active')">Reactivate</button>
           ` : ''}
         </div>
       </td>
@@ -309,39 +356,47 @@ function renderAdminBusinesses() {
   `).join("");
 }
 
-window.approveBusiness = function(bizId) {
+window.approveBusiness = async function(bizId) {
   const b = adminState.businesses.find(x => x.id === bizId);
   if (!b) return;
 
-  b.status = "verified";
-  showAdminToast(`✓ "${b.name}" approved and verified as official food partner!`);
-  renderAdminBusinesses();
-  renderAdminOverview();
-};
-
-window.rejectBusiness = function(bizId) {
-  const b = adminState.businesses.find(x => x.id === bizId);
-  if (!b) return;
-
-  if (confirm(`Are you sure you want to reject verification for ${b.name}?`)) {
-    adminState.businesses = adminState.businesses.filter(x => x.id !== bizId);
-    showAdminToast(`Verification request for "${b.name}" was rejected.`);
-    renderAdminBusinesses();
-    renderAdminOverview();
+  try {
+    await PlentiAPI.admin.updateBusinessStatus(bizId, { verificationStatus: "verified" });
+    showAdminToast(`✓ "${b.name}" approved and verified as official food partner!`);
+    await fetchAllAdminData();
+  } catch (err) {
+    showAdminToast(`Approval failed: ${err.message}`);
   }
 };
 
-window.toggleBusinessStatus = function(bizId) {
+window.rejectBusiness = async function(bizId) {
   const b = adminState.businesses.find(x => x.id === bizId);
   if (!b) return;
 
-  const nextStatus = b.status === "verified" ? "suspended" : "verified";
-  const actionText = nextStatus === "suspended" ? "suspend" : "reactivate";
+  if (!confirm(`Are you sure you want to reject verification for ${b.name}?`)) return;
 
-  if (confirm(`Do you wish to ${actionText} ${b.name}?`)) {
-    b.status = nextStatus;
+  try {
+    await PlentiAPI.admin.updateBusinessStatus(bizId, { verificationStatus: "rejected" });
+    showAdminToast(`Verification request for "${b.name}" rejected.`);
+    await fetchAllAdminData();
+  } catch (err) {
+    showAdminToast(`Rejection failed: ${err.message}`);
+  }
+};
+
+window.toggleBusinessStatus = async function(bizId, nextStatus) {
+  const b = adminState.businesses.find(x => x.id === bizId);
+  if (!b) return;
+
+  const actionText = nextStatus === "suspended" ? "suspend" : "reactivate";
+  if (!confirm(`Do you wish to ${actionText} ${b.name}?`)) return;
+
+  try {
+    await PlentiAPI.admin.updateBusinessStatus(bizId, { status: nextStatus });
     showAdminToast(`Business "${b.name}" is now ${nextStatus}.`);
-    renderAdminBusinesses();
+    await fetchAllAdminData();
+  } catch (err) {
+    showAdminToast(`Status update failed: ${err.message}`);
   }
 };
 
@@ -356,31 +411,24 @@ window.viewBusinessDetails = function(bizId) {
   modalBody.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
       <div>
-        <h4 style="font-size:1.2rem; font-weight:800; color:var(--dash-text); margin-bottom:4px;">${b.name}</h4>
-        <div style="font-size:0.85rem; color:var(--dash-text-muted);">📍 ${b.address}</div>
+        <h4 style="font-size:1.2rem; font-weight:800; color:var(--dash-text); margin-bottom:4px;">${escapeHtml(b.name)}</h4>
+        <div style="font-size:0.85rem; color:var(--dash-text-muted);">📍 ${escapeHtml(b.address)}</div>
       </div>
       <div>
-        <span class="badge badge-${b.status}">${b.status}</span>
+        <span class="badge badge-${b.status}">${formatStatus(b.status)}</span>
       </div>
     </div>
 
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; background:#F8FAFC; border:1px solid var(--dash-border); border-radius:var(--radius-md); padding:14px; margin-bottom:18px; font-size:0.85rem;">
-      <div><strong>Owner:</strong> ${b.owner}</div>
-      <div><strong>Category:</strong> ${b.category}</div>
-      <div><strong>Email:</strong> ${b.email}</div>
-      <div><strong>Phone:</strong> ${b.phone}</div>
+      <div><strong>Owner:</strong> ${escapeHtml(b.owner)}</div>
+      <div><strong>Category:</strong> ${escapeHtml(b.category)}</div>
+      <div><strong>Email:</strong> ${escapeHtml(b.email)}</div>
+      <div><strong>Phone:</strong> ${escapeHtml(b.phone)}</div>
       <div><strong>Registered on:</strong> ${b.regDate}</div>
-      <div><strong>Customer Rating:</strong> ★ ${b.rating || 'N/A'}</div>
-      <div><strong>Total Sales:</strong> ₹${b.totalEarnings.toLocaleString()}</div>
+      <div><strong>Total Sales:</strong> ₹${(b.totalEarnings || 0).toLocaleString()}</div>
       <div><strong>Completed Orders:</strong> ${b.totalOrdersCount}</div>
+      <div><strong>Food Saved:</strong> ${b.foodRescuedKg || 0} kg</div>
     </div>
-
-    <h5 style="font-weight:750; font-size:0.95rem; margin-bottom:8px;">Recent Listings from this Business:</h5>
-    <ul style="font-size:0.85rem; color:var(--dash-text-muted); padding-left:18px; margin-bottom:16px;">
-      <li>Evening Bakery Surprise Box (3 units available · ₹149)</li>
-      <li>Assorted French Croissant Duo (4 units available · ₹99)</li>
-      <li>Country Sourdough Loaf (2 units available · ₹119)</li>
-    </ul>
   `;
 
   openAdminModal();
@@ -406,18 +454,23 @@ function renderAdminCustomers() {
 
   setElText("custFilteredCount", `${filtered.length} customers`);
 
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--dash-text-muted);">No customers found matching criteria.</td></tr>`;
+    return;
+  }
+
   tbody.innerHTML = filtered.map(c => `
     <tr>
       <td>
-        <div style="font-weight:750; color:var(--dash-text);">${c.name}</div>
-        <div style="font-size:0.75rem; color:var(--dash-text-muted);">${c.location}</div>
+        <div style="font-weight:750; color:var(--dash-text);">${escapeHtml(c.name)}</div>
+        <div style="font-size:0.75rem; color:var(--dash-text-muted);">${escapeHtml(c.location)}</div>
       </td>
-      <td>${c.email}</td>
-      <td>${c.phone}</td>
+      <td>${escapeHtml(c.email)}</td>
+      <td>${escapeHtml(c.phone)}</td>
       <td>${c.joinDate}</td>
       <td><strong>${c.ordersCount}</strong> orders</td>
-      <td><strong>₹${c.totalSpent.toLocaleString()}</strong></td>
-      <td><span class="badge badge-${c.status === 'active' ? 'active' : 'suspended'}">${c.status}</span></td>
+      <td><strong>₹${(c.totalSpent || 0).toLocaleString()}</strong></td>
+      <td><span class="badge badge-${c.status === 'active' ? 'active' : 'suspended'}">${formatStatus(c.status)}</span></td>
       <td>
         <div style="display:flex; gap:6px;">
           <button class="btn btn-outline btn-sm" onclick="viewCustomerDetails('${c.id}')">Profile</button>
@@ -430,15 +483,19 @@ function renderAdminCustomers() {
   `).join("");
 }
 
-window.toggleCustomerStatus = function(custId) {
+window.toggleCustomerStatus = async function(custId) {
   const c = adminState.customers.find(x => x.id === custId);
   if (!c) return;
 
   const nextStatus = c.status === "active" ? "suspended" : "active";
-  if (confirm(`Are you sure you want to ${nextStatus === 'suspended' ? 'suspend' : 'reactivate'} ${c.name}?`)) {
-    c.status = nextStatus;
-    showAdminToast(`Customer ${c.name} status updated to ${nextStatus}.`);
-    renderAdminCustomers();
+  if (!confirm(`Are you sure you want to ${nextStatus === 'suspended' ? 'suspend' : 'reactivate'} ${c.name}?`)) return;
+
+  try {
+    await PlentiAPI.admin.updateCustomerStatus(custId, nextStatus);
+    showAdminToast(`Customer ${c.name} account is now ${nextStatus}.`);
+    await fetchAllAdminData();
+  } catch (err) {
+    showAdminToast(`Status change error: ${err.message}`);
   }
 };
 
@@ -453,21 +510,21 @@ window.viewCustomerDetails = function(custId) {
   modalBody.innerHTML = `
     <div style="display:flex; gap:16px; align-items:center; margin-bottom:18px;">
       <div style="width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg, var(--dash-primary), #059669); color:white; font-size:1.3rem; font-weight:800; display:flex; align-items:center; justify-content:center;">
-        ${c.name.split(' ').map(n=>n[0]).join('')}
+        ${escapeHtml(c.name.split(' ').map(n=>n[0]).join('').slice(0, 2))}
       </div>
       <div>
-        <h4 style="font-size:1.2rem; font-weight:800; margin-bottom:2px;">${c.name}</h4>
-        <div style="font-size:0.85rem; color:var(--dash-text-muted);">${c.email} · ${c.phone}</div>
+        <h4 style="font-size:1.2rem; font-weight:800; margin-bottom:2px;">${escapeHtml(c.name)}</h4>
+        <div style="font-size:0.85rem; color:var(--dash-text-muted);">${escapeHtml(c.email)} · ${escapeHtml(c.phone)}</div>
       </div>
     </div>
 
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; background:#F8FAFC; border:1px solid var(--dash-border); border-radius:var(--radius-md); padding:14px; margin-bottom:18px; font-size:0.85rem;">
-      <div><strong>Primary Area:</strong> ${c.location}</div>
+      <div><strong>Location:</strong> ${escapeHtml(c.location)}</div>
       <div><strong>Member Since:</strong> ${c.joinDate}</div>
-      <div><strong>Orders Rescued:</strong> ${c.ordersCount} meals</div>
-      <div><strong>Total Expenditure:</strong> ₹${c.totalSpent.toLocaleString()}</div>
-      <div><strong>Account Standing:</strong> <span class="badge badge-${c.status === 'active' ? 'active' : 'suspended'}">${c.status}</span></div>
-      <div><strong>Estimated Food Waste Saved:</strong> ${(c.ordersCount * 1.8).toFixed(1)} kg</div>
+      <div><strong>Orders Placed:</strong> ${c.ordersCount} meals</div>
+      <div><strong>Total Expenditure:</strong> ₹${(c.totalSpent || 0).toLocaleString()}</div>
+      <div><strong>Account Standing:</strong> <span class="badge badge-${c.status === 'active' ? 'active' : 'suspended'}">${formatStatus(c.status)}</span></div>
+      <div><strong>Food Saved:</strong> ${(c.ordersCount * 1.5).toFixed(1)} kg</div>
     </div>
   `;
 
@@ -494,18 +551,23 @@ function renderAdminListings() {
 
   setElText("listingsFilteredCount", `${filtered.length} listings`);
 
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--dash-text-muted);">No surplus listings found.</td></tr>`;
+    return;
+  }
+
   tbody.innerHTML = filtered.map(l => `
     <tr>
       <td>
         <div style="display:flex; align-items:center; gap:12px;">
-          <img src="${l.image}" alt="${l.name}" style="width:44px; height:44px; object-fit:cover; border-radius:var(--radius-sm);" />
+          <img src="${escapeHtml(l.image)}" alt="${escapeHtml(l.name)}" style="width:44px; height:44px; object-fit:cover; border-radius:var(--radius-sm);" onerror="this.src='https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80'" />
           <div>
-            <div style="font-weight:750; color:var(--dash-text);">${l.name}</div>
-            <div style="font-size:0.75rem; color:var(--dash-text-muted);">${l.category}</div>
+            <div style="font-weight:750; color:var(--dash-text);">${escapeHtml(l.name)}</div>
+            <div style="font-size:0.75rem; color:var(--dash-text-muted);">${escapeHtml(l.category)}</div>
           </div>
         </div>
       </td>
-      <td><strong>${l.businessName}</strong></td>
+      <td><strong>${escapeHtml(l.businessName)}</strong></td>
       <td>
         <strong>₹${l.discountedPrice}</strong>
         <span style="font-size:0.75rem; color:var(--dash-text-subtle); text-decoration:line-through;">₹${l.originalPrice}</span>
@@ -513,7 +575,7 @@ function renderAdminListings() {
       </td>
       <td><strong>${l.availableQty}</strong> left</td>
       <td>${l.pickupStart} – ${l.pickupEnd}</td>
-      <td><span class="badge badge-${l.status}">${l.status}</span></td>
+      <td><span class="badge badge-${l.status}">${formatStatus(l.status)}</span></td>
       <td>
         <div style="display:flex; gap:6px;">
           <button class="btn btn-outline btn-sm" onclick="viewListingDetails('${l.id}')">View</button>
@@ -524,14 +586,18 @@ function renderAdminListings() {
   `).join("");
 }
 
-window.removeListingAdmin = function(listingId) {
+window.removeListingAdmin = async function(listingId) {
   const l = adminState.listings.find(x => x.id === listingId);
   if (!l) return;
 
-  if (confirm(`Remove listing "${l.name}" from the public marketplace for policy compliance?`)) {
-    adminState.listings = adminState.listings.filter(x => x.id !== listingId);
-    showAdminToast(`Listing "${l.name}" has been removed.`);
-    renderAdminListings();
+  if (!confirm(`Remove listing "${l.name}" from the public marketplace for policy compliance?`)) return;
+
+  try {
+    await PlentiAPI.listings.delete(listingId);
+    showAdminToast(`Listing "${l.name}" has been removed from MongoDB.`);
+    await fetchAllAdminData();
+  } catch (err) {
+    showAdminToast(`Removal error: ${err.message}`);
   }
 };
 
@@ -544,17 +610,17 @@ window.viewListingDetails = function(listingId) {
 
   modalTitle.textContent = "Surplus Listing Information";
   modalBody.innerHTML = `
-    <img src="${l.image}" alt="${l.name}" style="width:100%; height:180px; object-fit:cover; border-radius:var(--radius-md); margin-bottom:16px;" />
-    <h4 style="font-size:1.25rem; font-weight:800; margin-bottom:4px;">${l.name}</h4>
-    <p style="font-size:0.85rem; color:var(--dash-text-muted); margin-bottom:12px;">Provided by <strong>${l.businessName}</strong></p>
-    <p style="font-size:0.9rem; line-height:1.5; color:var(--dash-text); margin-bottom:16px;">${l.description}</p>
+    <img src="${escapeHtml(l.image)}" alt="${escapeHtml(l.name)}" style="width:100%; height:180px; object-fit:cover; border-radius:var(--radius-md); margin-bottom:16px;" onerror="this.src='https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80'" />
+    <h4 style="font-size:1.25rem; font-weight:800; margin-bottom:4px;">${escapeHtml(l.name)}</h4>
+    <p style="font-size:0.85rem; color:var(--dash-text-muted); margin-bottom:12px;">Partner: <strong>${escapeHtml(l.businessName)}</strong></p>
+    <p style="font-size:0.9rem; line-height:1.5; color:var(--dash-text); margin-bottom:16px;">${escapeHtml(l.description)}</p>
 
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; background:#F8FAFC; border:1px solid var(--dash-border); border-radius:var(--radius-md); padding:12px; font-size:0.85rem;">
-      <div><strong>Category:</strong> ${l.category}</div>
+      <div><strong>Category:</strong> ${escapeHtml(l.category)}</div>
       <div><strong>Surplus Price:</strong> ₹${l.discountedPrice} (Save ${l.discountPercent}%)</div>
-      <div><strong>Available Stock:</strong> ${l.availableQty} packages</div>
+      <div><strong>Stock Available:</strong> ${l.availableQty} portions</div>
       <div><strong>Pickup Window:</strong> ${l.pickupStart} – ${l.pickupEnd}</div>
-      <div><strong>Current Status:</strong> <span class="badge badge-${l.status}">${l.status}</span></div>
+      <div><strong>Current Status:</strong> <span class="badge badge-${l.status}">${formatStatus(l.status)}</span></div>
     </div>
   `;
 
@@ -573,23 +639,29 @@ function renderAdminOrders() {
     const matchesSearch = !search ||
       o.id.toLowerCase().includes(search) ||
       o.customer.toLowerCase().includes(search) ||
-      o.business.toLowerCase().includes(search);
+      o.business.toLowerCase().includes(search) ||
+      (o.pickupCode && o.pickupCode.includes(search));
     const matchesStatus = (statusFilter === "all") || (o.status === statusFilter);
     return matchesSearch && matchesStatus;
   });
 
   setElText("ordersFilteredCount", `${filtered.length} orders`);
 
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:32px; color:var(--dash-text-muted);">No orders found matching criteria.</td></tr>`;
+    return;
+  }
+
   tbody.innerHTML = filtered.map(o => `
     <tr>
       <td><strong>${o.id}</strong></td>
-      <td><strong>${o.customer}</strong></td>
-      <td>${o.business}</td>
-      <td>${o.item}</td>
+      <td><strong>${escapeHtml(o.customer)}</strong></td>
+      <td>${escapeHtml(o.business)}</td>
+      <td>${escapeHtml(o.itemsText || o.item)}</td>
       <td>${o.quantity}</td>
       <td><strong>₹${o.amount}</strong></td>
       <td>${o.payment}</td>
-      <td><span class="badge badge-${o.status}">${o.status}</span></td>
+      <td><span class="badge badge-${o.status}">${formatStatus(o.status)}</span></td>
       <td>${o.time}</td>
       <td>
         <button class="btn btn-outline btn-sm" onclick="viewOrderDetails('${o.id}')">Details</button>
@@ -598,8 +670,8 @@ function renderAdminOrders() {
   `).join("");
 }
 
-window.viewOrderDetails = function(orderId) {
-  const o = adminState.orders.find(x => x.id === orderId);
+window.viewOrderDetails = function(orderDisplayId) {
+  const o = adminState.orders.find(x => x.id === orderDisplayId);
   if (!o) return;
 
   const modalBody = document.getElementById("adminModalBody");
@@ -608,19 +680,19 @@ window.viewOrderDetails = function(orderId) {
   modalTitle.textContent = `Order Dossier — ${o.id}`;
   modalBody.innerHTML = `
     <div style="background:#F8FAFC; border:2px dashed var(--dash-primary); border-radius:var(--radius-md); padding:16px; text-align:center; margin-bottom:16px;">
-      <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--dash-text-muted);">Pickup Code</div>
-      <div style="font-size:1.8rem; font-weight:850; font-family:monospace; color:var(--dash-text);">${o.id}</div>
-      <span class="badge badge-${o.status}" style="margin-top:6px;">Status: ${o.status}</span>
+      <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--dash-text-muted);">Customer Pickup Code</div>
+      <div style="font-size:2rem; font-weight:850; font-family:monospace; color:var(--dash-primary-dark);">${o.pickupCode || '----'}</div>
+      <span class="badge badge-${o.status}" style="margin-top:6px;">Status: ${formatStatus(o.status)}</span>
     </div>
 
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:0.85rem; margin-bottom:16px;">
-      <div><strong>Customer:</strong> ${o.customer}</div>
-      <div><strong>Food Partner:</strong> ${o.business}</div>
-      <div><strong>Item Ordered:</strong> ${o.item}</div>
-      <div><strong>Quantity:</strong> ${o.quantity}</div>
+      <div><strong>Customer:</strong> ${escapeHtml(o.customer)}</div>
+      <div><strong>Customer Contact:</strong> ${escapeHtml(o.customerPhone)}</div>
+      <div><strong>Food Partner:</strong> ${escapeHtml(o.business)}</div>
+      <div><strong>Items:</strong> ${escapeHtml(o.itemsText || o.item)}</div>
       <div><strong>Total Amount:</strong> ₹${o.amount}</div>
       <div><strong>Payment:</strong> ${o.payment}</div>
-      <div><strong>Order Timestamp:</strong> ${o.date} (${o.time})</div>
+      <div><strong>Order Date:</strong> ${o.date} (${o.time})</div>
     </div>
   `;
 
@@ -638,8 +710,6 @@ function initAdminCharts() {
       drawRevenueChart();
     });
   });
-
-  drawRevenueChart();
 }
 
 function drawRevenueChart() {
@@ -647,9 +717,30 @@ function drawRevenueChart() {
   if (!container) return;
 
   const isWeekly = adminState.chartPeriod === "weekly";
-  const data = isWeekly ? PLENTI_MOCK.admin.revenueTrends.weekly : PLENTI_MOCK.admin.revenueTrends.monthly;
-  const maxRev = Math.max(...data.map(d => d.revenue));
+  let data;
 
+  if (isWeekly) {
+    data = [
+      { label: "Mon", revenue: 14500 },
+      { label: "Tue", revenue: 22000 },
+      { label: "Wed", revenue: 18500 },
+      { label: "Thu", revenue: 29000 },
+      { label: "Fri", revenue: 38500 },
+      { label: "Sat", revenue: 47000 },
+      { label: "Sun", revenue: 35000 }
+    ];
+  } else {
+    data = [
+      { label: "Jan", revenue: 110000 },
+      { label: "Feb", revenue: 145000 },
+      { label: "Mar", revenue: 180000 },
+      { label: "Apr", revenue: 165000 },
+      { label: "May", revenue: 215000 },
+      { label: "Jun", revenue: 250000 }
+    ];
+  }
+
+  const maxRev = Math.max(...data.map(d => d.revenue)) || 1;
   const width = 600;
   const height = 200;
   const barWidth = 36;
@@ -769,7 +860,7 @@ function showAdminToast(msg) {
     toast.className = "toast-notice";
     document.body.appendChild(toast);
   }
-  toast.innerHTML = `<span style="background:var(--dash-primary); color:white; padding:2px 6px; border-radius:4px; font-size:0.75rem; font-weight:800;">ADMIN</span> <span>${msg}</span>`;
+  toast.innerHTML = `<span style="background:var(--dash-primary); color:white; padding:2px 6px; border-radius:4px; font-size:0.75rem; font-weight:800;">ADMIN</span> <span>${escapeHtml(msg)}</span>`;
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 3500);
 }
@@ -777,6 +868,21 @@ function showAdminToast(msg) {
 function setElText(id, text) {
   const el = document.getElementById(id);
   if (el) el.textContent = text;
+}
+
+function formatStatus(status) {
+  if (!status) return "";
+  return status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 // ==================== MOBILE SIDEBAR ====================

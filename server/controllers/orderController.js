@@ -47,7 +47,8 @@ exports.createOrder = async (req, res) => {
       ],
       totalAmount: listing.discountedPrice * orderQty,
       paymentStatus: 'paid',
-      orderStatus: 'confirmed',
+      orderStatus: 'pending',
+      statusHistory: [{ status: 'pending', timestamp: new Date() }],
       pickupCode,
       pickupWindow: `Today, ${listing.pickupStart} - ${listing.pickupEnd}`,
       notes: notes || ''
@@ -121,13 +122,13 @@ exports.getStoreOrders = async (req, res) => {
   }
 };
 
-// @desc    Update order status (Accept, Mark Ready, Complete, Cancel)
+// @desc    Update order status (Accept, In Preparation, Ready, Complete, Cancel)
 // @route   PATCH /api/orders/:id/status
 // @access  Private (Business / Admin)
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    const allowed = ['pending', 'confirmed', 'ready', 'completed', 'cancelled'];
+    const allowed = ['pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled'];
     if (!allowed.includes(status)) {
       return res.status(400).json({ success: false, message: `Invalid status: ${status}` });
     }
@@ -138,12 +139,47 @@ exports.updateOrderStatus = async (req, res) => {
     }
 
     order.orderStatus = status;
+    if (!order.statusHistory) {
+      order.statusHistory = [];
+    }
+    order.statusHistory.push({ status, timestamp: new Date() });
     await order.save();
 
     res.status(200).json({
       success: true,
       message: `Order status updated to ${status}`,
       data: order
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Get all orders across platform
+// @route   GET /api/orders
+// @access  Private (Admin)
+exports.getAllOrders = async (req, res) => {
+  try {
+    const { status, search } = req.query;
+    let query = {};
+    if (status && status !== 'all') {
+      query.orderStatus = status;
+    }
+    if (search) {
+      query.$or = [
+        { orderId: { $regex: search, $options: 'i' } },
+        { pickupCode: { $regex: search, $options: 'i' } }
+      ];
+    }
+    const orders = await Order.find(query)
+      .populate('customer', 'name email phone')
+      .populate('business', 'businessName category phone address')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      data: orders
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

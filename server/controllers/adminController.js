@@ -19,13 +19,13 @@ exports.getOverview = async (req, res) => {
       { $match: { paymentStatus: 'paid' } },
       { $group: { _id: null, total: { $sum: '$totalAmount' } } }
     ]);
-    const totalRevenue = revenueResult[0]?.total || 148250;
+    const totalRevenue = revenueResult[0]?.total || 0;
 
     // Aggregate food saved
     const foodSavedResult = await Business.aggregate([
       { $group: { _id: null, total: { $sum: '$totalFoodRescuedKg' } } }
     ]);
-    const totalFoodSavedKg = foodSavedResult[0]?.total || 3420;
+    const totalFoodSavedKg = foodSavedResult[0]?.total || 0;
 
     const recentOrders = await Order.find()
       .populate('customer', 'name email')

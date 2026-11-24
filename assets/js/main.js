@@ -144,6 +144,8 @@ function initMarketplace() {
 
   // Initial load from live MongoDB backend
   fetchLiveSurplusInventory();
+  // Auto-refresh listings every 10 seconds so new food appears live
+  setInterval(fetchLiveSurplusInventory, 10000);
 }
 
 function fetchLiveSurplusInventory() {
@@ -395,56 +397,85 @@ function updateModalTotals() {
   }
 }
 
-function handleReservationSubmit() {
+async function handleReservationSubmit() {
   if (!activeModalItem) return;
+
+  const token = localStorage.getItem("plenti_access_token");
+  if (!token) {
+    alert("Please sign in or create an account to reserve surplus food.");
+    window.location.href = "login.html?redirect=index.html";
+    return;
+  }
+
+  const confirmBtn = document.getElementById("confirmReservationBtn");
+  if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "Reserving meal with MongoDB...";
+  }
 
   const payMethodInput = document.querySelector('input[name="payMethod"]:checked');
   const payMethod = payMethodInput ? payMethodInput.value : 'RAZORPAY';
-  const orderTotal = activeModalItem.discountedPrice * modalQuantity;
-  const orderCode = `PLNT-${Math.floor(1000 + Math.random() * 9000)}`;
 
-  // Deduct quantity in local inventory
-  activeModalItem.remainingQty = Math.max(0, activeModalItem.remainingQty - modalQuantity);
+  try {
+    const res = await PlentiAPI.orders.create({
+      listingId: activeModalItem.id,
+      quantity: modalQuantity,
+      notes: `Payment method: ${payMethod}`
+    });
 
-  // Present simulated success receipt inside modal
-  const modalBody = document.getElementById("resModalBody");
-  const modalFooter = document.getElementById("resModalFooter");
+    const orderData = res.data;
+    const orderCode = orderData.pickupCode || `PLNT-${Math.floor(1000 + Math.random() * 9000)}`;
+    const orderTotal = orderData.totalAmount || (activeModalItem.discountedPrice * modalQuantity);
 
-  modalBody.innerHTML = `
-    <div style="text-align:center; padding:20px 10px;">
-      <div style="font-size:3.5rem; margin-bottom:12px;">🎉</div>
-      <h3 style="font-size:1.4rem; font-weight:800; color:var(--color-primary); margin-bottom:8px;">
-        Surplus Rescued Successfully!
-      </h3>
-      <p style="font-size:0.95rem; color:var(--color-text-muted); margin-bottom:20px;">
-        Your reservation for <strong>${activeModalItem.title}</strong> is locked in.
-      </p>
+    // Refresh inventory from MongoDB
+    fetchLiveSurplusInventory();
 
-      <div style="background:#F8FAFC; border:2px dashed var(--color-primary); border-radius:var(--radius-md); padding:16px; margin-bottom:20px;">
-        <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--color-text-muted); margin-bottom:4px;">Pickup Verification Code</div>
-        <div style="font-size:1.8rem; font-weight:850; letter-spacing:2px; color:var(--color-text-main); font-family:monospace;">
-          ${orderCode}
+    // Present real success receipt inside modal
+    const modalBody = document.getElementById("resModalBody");
+    const modalFooter = document.getElementById("resModalFooter");
+
+    modalBody.innerHTML = `
+      <div style="text-align:center; padding:20px 10px;">
+        <div style="font-size:3.5rem; margin-bottom:12px;">🎉</div>
+        <h3 style="font-size:1.4rem; font-weight:800; color:var(--color-primary); margin-bottom:8px;">
+          Surplus Rescued Successfully!
+        </h3>
+        <p style="font-size:0.95rem; color:var(--color-text-muted); margin-bottom:20px;">
+          Your order <strong>${orderData.orderId}</strong> for <strong>${activeModalItem.title}</strong> is locked in.
+        </p>
+
+        <div style="background:#F8FAFC; border:2px dashed var(--color-primary); border-radius:var(--radius-md); padding:16px; margin-bottom:20px;">
+          <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--color-text-muted); margin-bottom:4px;">4-Digit Pickup Verification Code</div>
+          <div style="font-size:2.2rem; font-weight:850; letter-spacing:3px; color:var(--color-primary-dark); font-family:monospace;">
+            ${orderCode}
+          </div>
+          <div style="font-size:0.8rem; color:var(--color-text-muted); margin-top:4px;">
+            Show this 4-digit code at <strong>${activeModalItem.store}</strong>
+          </div>
         </div>
-        <div style="font-size:0.8rem; color:var(--color-text-muted); margin-top:4px;">
-          Show this code at <strong>${activeModalItem.store}</strong>
+
+        <div style="text-align:left; font-size:0.88rem; background:#F1F5F9; border-radius:var(--radius-sm); padding:12px 16px; display:flex; flex-direction:column; gap:6px;">
+          <div>⏰ <strong>Pickup Window:</strong> ${orderData.pickupWindow || activeModalItem.pickupWindow}</div>
+          <div>📍 <strong>Address:</strong> ${activeModalItem.address}</div>
+          <div>💳 <strong>Total Paid:</strong> ₹${orderTotal}</div>
         </div>
       </div>
+    `;
 
-      <div style="text-align:left; font-size:0.88rem; background:#F1F5F9; border-radius:var(--radius-sm); padding:12px 16px; display:flex; flex-direction:column; gap:6px;">
-        <div>⏰ <strong>Pickup Window:</strong> ${activeModalItem.pickupWindow}</div>
-        <div>📍 <strong>Address:</strong> ${activeModalItem.address}</div>
-        <div>💳 <strong>Payment:</strong> ${payMethod === 'RAZORPAY' ? 'Paid via Razorpay' : 'Pay ₹' + orderTotal + ' in cash upon pickup'}</div>
-      </div>
-    </div>
-  `;
+    modalFooter.innerHTML = `
+      <button type="button" class="btn btn-primary" style="width:100%;" onclick="closeFoodModal();">
+        Done &amp; Return to Marketplace ✓
+      </button>
+    `;
 
-  modalFooter.innerHTML = `
-    <button type="button" class="btn btn-primary" style="width:100%;" onclick="closeFoodModal(); location.reload();">
-      Done &amp; Return to Marketplace ✓
-    </button>
-  `;
-
-  showToast(`✅ Reserved! Order ${orderCode}`);
+    showToast(`✅ Reserved! Order ${orderData.orderId}`);
+  } catch (err) {
+    alert(`Reservation failed: ${err.message}`);
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = "Confirm Reservation & Pay";
+    }
+  }
 }
 
 // ==================== STATS COUNTER ANIMATION ====================

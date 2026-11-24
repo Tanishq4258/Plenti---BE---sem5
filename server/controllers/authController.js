@@ -128,6 +128,51 @@ exports.login = async (req, res) => {
   }
 };
 
+// @desc    Google OAuth login/register
+// @route   POST /api/auth/google
+// @access  Public
+exports.googleAuth = async (req, res) => {
+  try {
+    const { email, name, role } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Google account email is required' });
+    }
+
+    let user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      user = await User.create({
+        name: name || email.split('@')[0],
+        email: email.toLowerCase(),
+        password: Math.random().toString(36).slice(-10) + 'A1!',
+        role: ['customer', 'business'].includes(role) ? role : 'customer'
+      });
+
+      if (user.role === 'business') {
+        await Business.create({
+          owner: user._id,
+          businessName: `${user.name}'s Kitchen`,
+          category: 'Restaurant',
+          email: user.email,
+          verificationStatus: 'pending'
+        });
+      }
+    }
+
+    if (user.status === 'suspended') {
+      return res.status(403).json({ success: false, message: 'Your account has been suspended. Please contact platform administrators.' });
+    }
+
+    let business = null;
+    if (user.role === 'business') {
+      business = await Business.findOne({ owner: user._id });
+    }
+
+    sendTokenResponse(user, 200, res, business);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // @desc    Get currently logged in user profile
 // @route   GET /api/auth/me
 // @access  Private

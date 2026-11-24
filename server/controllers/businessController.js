@@ -82,8 +82,8 @@ exports.getMyBusinessStats = async (req, res) => {
         pendingOrders,
         completedOrders,
         totalOrders,
-        earnings: business.totalEarnings || 38450,
-        foodRescuedKg: business.totalFoodRescuedKg || 285,
+        earnings: business.totalEarnings || 0,
+        foodRescuedKg: business.totalFoodRescuedKg || 0,
         recentOrders
       }
     });

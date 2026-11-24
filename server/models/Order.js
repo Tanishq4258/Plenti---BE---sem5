@@ -39,9 +39,15 @@ const OrderSchema = new mongoose.Schema(
     },
     orderStatus: {
       type: String,
-      enum: ['pending', 'confirmed', 'ready', 'completed', 'cancelled'],
+      enum: ['pending', 'confirmed', 'preparing', 'ready', 'completed', 'cancelled'],
       default: 'pending'
     },
+    statusHistory: [
+      {
+        status: { type: String, required: true },
+        timestamp: { type: Date, default: Date.now }
+      }
+    ],
     pickupCode: {
       type: String,
       required: true,

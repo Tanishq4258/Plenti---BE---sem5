@@ -62,6 +62,13 @@ const PlentiAPI = {
       });
     },
 
+    async googleLogin(userData) {
+      return PlentiAPI.request('/auth/google', {
+        method: 'POST',
+        body: JSON.stringify(userData)
+      });
+    },
+
     async getMe() {
       return PlentiAPI.request('/auth/me', { method: 'GET' });
     }
@@ -117,6 +124,11 @@ const PlentiAPI = {
 
     async getMyOrders() {
       return PlentiAPI.request('/orders/my-orders', { method: 'GET' });
+    },
+
+    async getAll(params = {}) {
+      const query = new URLSearchParams(params).toString();
+      return PlentiAPI.request(`/orders${query ? `?${query}` : ''}`, { method: 'GET' });
     },
 
     async getStoreOrders(status) {
